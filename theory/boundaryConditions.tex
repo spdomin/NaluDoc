@@ -1,0 +1,492 @@
+\subsection{Inflow Boundary Condition}
+
+\subsubsection{Continuity}
+Continuity uses a flux boundary condition with the incoming
+mass flow rate based on the user specified values for velocity,
+\begin{equation}
+  \dot{m}_c = \rho^{spec} u^{spec}_j A_j.
+\end{equation}
+As this is a vertex-based code, at inflow and dirichlet wall boundary locations,
+the continuity equation uses the specified velocity within the inflow boundary condition
+block.
+
+\subsubsection{Momentum, Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$}
+These degree-of-freemoms (dofs) each use a dirichlet value with the specified user value.
+For all dirichlet values, the row is zeroed with a unity placed
+on the diagonal. The residual is zeroed and set to the difference
+between the current value and user specified value.
+
+\subsection{Wall Boundary Conditions}
+
+\subsubsection{Continuity}
+Continuity uses a no-op.
+
+\subsubsection{Momentum}
+When resolving the boundary layer, Momentum again uses a no-slip 
+dirichlet condition., e.g., $u_i = 0$. 
+
+In the case of a wall model, a classic wall function is applied.
+The wall shear stress enters the discretization of the momentum equations 
+by the term
+%
+\begin{equation}
+        \int \tau_{ij} n_j dS = -{F_w}_i .
+ \label{wall_shear1}
+\end{equation}
+%
+Wall functions are used to prescribe the value of the wall shear 
+stress rather than resolving the boundary layer within the near-wall 
+domain. The fundamental momentum law of the wall formulation, assuming 
+fully-developed turbulent flow near a no-slip wall, can be written as,
+%
+\begin{equation}
+u^+ = {u_{\|} \over u_{\tau}} 
+    = { 1 \over \kappa } \ln \left(Ey^+\right) ,
+\label{law_wall}
+\end{equation}
+%
+where $u^+$ is defined by the the near-wall parallel velocity, $u_{\|}$, normalized 
+by the wall friction velocity, $u_{\tau}$. The wall friction velocity is
+related to the turbulent kinetic energy by,
+%
+\begin{equation} 
+        u_{\tau} = C_\mu^{1/4} k^{1/2}.
+\label{utau}
+\end{equation}
+%
+by assuming that the production and dissipation of turbulence is in local 
+equalibrium.  The wall friction velocity is also computed given the density and wall shear stress,
+\begin{equation} 
+        u_\tau = (\frac{\tau_w} {\rho})^{0.5}.
+\end{equation}
+
+
+The normalized perpendicular distace from the point in question to the wall, $y^+$, is defined as
+the following:
+%
+\begin{equation} 
+        y^+ = {{ \rho Y_p} \over {\mu }}\left(\tau_w \over \rho \right)^{1/2} 
+            = {{ \rho Y_p u_{\tau}} \over {\mu }}.
+\label{yplus}
+\end{equation}
+%
+The classical law of the wall is as follows:
+%
+\begin{equation}
+       u^+ = \frac{1}{\kappa} \ln(y^+) + C,
+\label{lawOfWall1}
+\end{equation}
+%
+where $\kappa$ is the von Karman constant and $C$ is the dimensionless 
+integration constant that varies based on authorship and surface roughness. 
+The above expression can be re-written as,
+%
+\begin{equation}
+       u^+ = \frac{1}{\kappa} \ln(y^+) + \frac{1}{\kappa} \ln(\exp(\kappa C)),
+\label{lawOfWall2}
+\end{equation}
+%
+or simplified to the following expression:
+%
+\begin{align}
+       u^+ &= \frac{1}{\kappa} \left(\ln(y^+) + \ln(\exp(\kappa C))\right) \\
+           &= \frac{1}{\kappa} \ln(E y^+).
+\label{lawOfWall3}
+\end{align}
+%
+In the above equation, $E$, is referred to in the text as the dimensionless wall 
+roughness parameter and is described by,
+%
+\begin{equation}
+       E = \exp(\kappa C).
+\label{ElogParam}
+\end{equation}
+%
+In Nalu, $\kappa$ is set to the value of 0.42 while the 
+value of $E$ is set to 9.8 for smooth walls\footnote{White 
+suggests values of $\kappa=0.41$ and $E=7.768$.}. 
+The viscous sublayer is assumed to extend to a value of $y^+$ = 11.63.
+
+The wall shear stress, $\tau_w$, can be expressed as,
+%
+\begin{equation} 
+        \tau_w = \rho u_\tau^2 = \rho u_\tau {{u_\|} \over {u^+}}
+               = { {\rho \kappa u_{\tau}}  \over {\ln \left(Ey^+\right) } }u_\|
+               = \lambda_w u_\| ,
+\label{wall_shear_trb}
+\end{equation}
+%
+where $\lambda_w$ is simply the grouping of the factors from the law of the wall.
+For values of $y^+$ less than 11.63, the wall shear stress is given by,
+%
+\begin{equation}
+        \tau_w =  \mu {u_\| \over Y_p} .
+\label{wall_shear_lam}
+\end{equation}
+%
+The force imparted by the wall, for the $i_{th}$ component of velocity,
+can be written as,
+%
+\begin{equation}
+        F_{w,i}= -\lambda_w A_w u_{i\|} ,
+\label{wall_force_1}
+\end{equation}
+%
+where $A_w$ is the total area over which the shear stress acts.
+
+The use of a general, non-orthogonal mesh adds a slight complexity to 
+specifying the force imparted on the fluid by the wall.
+As shown in Equation~\ref{wall_force_1}, the velocity component parallel to 
+the wall must be determined. Use of the unit normal vector, $n_j$, 
+provides an easy way to determine the parallel velocity component by the 
+following standard vector projection:
+%
+\begin{equation}
+        \Pi_{ij} = \left [ \delta_{ij} - n_i n_j \right].
+\label{proj_oper}
+\end{equation}
+%
+Carrying out the projection of a general velocity,
+which is not necessarily parallel to the wall, yields the velocity vector 
+parallel to the wall,
+%
+\begin{equation}
+        u_{i\|} = \Pi_{ij} {u}_j = u_i\left(1-{n_i}^2\right)
+        -\sum_{j=1;j\neq j}^{n} u_j n_i n_j.
+\label{proj_operU}
+\end{equation}
+%
+Note that the component that acts on the particular $i^{th}$ component of 
+velocity,
+%
+\begin{equation}
+        -\lambda_w A_w \left(1-n_i n_i\right) u_{i\|} ,
+\label{implicit_shear}
+\end{equation}
+%
+provides a form that can be potentially treated implicitly; i.e., in a way to 
+augment the diagonal dominance of the central coefficient of the $i^{th}$ 
+component of velocity. The use of residual form adds a slight complexity to
+this implicit formulation only in that appropriate right-hand-side source terms
+must be added.
+
+\subsubsection{Mixture Fraction}
+If a value is specified for each quantity within the wall boundary condition block, a Dirichlet condition
+is applied. If no values are specified, a zero flux condition is applied.
+
+\subsubsection{Enthalpy}
+If the temperature is specified within the wall boundary condition block, a Dirichlet condition
+is always specified. Wall functions for enthalpy transport have not yet been implemented. 
+
+The simulation tool supports multi-physics coupling via conjugate heat transfer and radiative heat transfer.
+Coupling parameters required for the thermal boundary condiciton are post processed by the fluids or PMR Realm.
+For congugate and radiative couopling, the thermal solve provides the surface temperature. From the surface temperature, 
+a wall enthalpy is computed and used.
+
+\subsubsection{Thermal Heat Conduction}
+If a temperature is specified in the wall block, and the surface is not an interface condition, then a Dirichlet
+approach is used. If congugate heat transfer is included, then
+the boundary condition applied is as follows,
+
+\begin{equation}
+     -\kappa \frac{\partial T} {\partial x_j} n_j dS = h(T-T^o)dS,
+\end{equation}
+where $h$ is the heat transfer coefficient and $T^o$ is the reference
+temperature. The details of how these quantities are computed are currently omitted
+in this manual. In general, the quantities are post processed from the fluids temperature field. A surface-based
+gradient is computed on the boundary face. Nodes on the face augment a heat transfer coefficient field while
+nodes off the face contribute to a reference temperature. 
+
+For radiative heat transfer, the boundary condition 
+applied is as follows:
+\begin{equation}
+     -\kappa \frac{\partial T} {\partial x_j} n_j dS = \epsilon (\sigma T^4 - H) dS,
+\end{equation}
+where $H$ is again the irradiation provided by the RTE solve.
+
+If no temperature is specified or an adiabatic line command is used, a zero flux condition is applied.
+
+\subsubsection{Species}
+If a value is specified for each quantity within the wall boundary condition block, a Dirichlet condition
+is applied. If no values are specified, a zero flux condition is applied.
+
+\subsection{Turbulent Kinetic Energy, $k_{sgs}$ LES model}
+When the boundary layer is assumed to be resolved, the natural boundary condition is a dirichelt value of zero, 
+$k_{sgs} = 0$. 
+
+When the wall model is used, a standard wall function approach is used with the assumption of equal production and
+dissipation.
+
+The turbulent kinetic energy production term is consistent with the law of the wall formulation and can be expressed as,
+%
+\begin{equation}
+        {P_k}_w = \tau_w {{\partial u_{\|}} \over {\partial y}}.
+\label{wall_pk_1}
+\end{equation}
+%
+The parallel velocity, $u_{\|}$, can be related to the wall shear stress by,
+%
+\begin{equation}
+        \tau_w {u^+ \over y^+ } = \mu {u_{\|} \over Y_p }.
+\label{tauwall_uplus}
+\end{equation}
+%
+Taking the derivative of both sides of Equation~\ref{tauwall_uplus}, and
+substituting this relationship into Equation~\ref{wall_pk_1} yields,
+%
+\begin{equation} 
+        {P_k}_w = {\tau_w^2 \over \mu} {{\partial u^+} \over {\partial y^+}}.
+\label{wall_pk_2}
+\end{equation}
+%
+Applying the derivative of the law of the wall formulation, Equation~\ref{law_wall},
+provides the functional form of ${\partial u^+ / \partial y^+}$,
+%
+\begin{equation} 
+        {\partial u^+ \over \partial y^+}
+      = {\partial \over \partial y^+}
+       \left[{ 1 \over \kappa } \ln \left(Ey^+\right) \right]
+      = {1 \over \kappa y^+}.
+\label{dlaw_wall}
+\end{equation}
+%
+Substituting Equation~\ref{dlaw_wall} within Equation~\ref{wall_pk_2} yields
+a commonly used form of the near wall production term,
+%
+\begin{equation}
+        {P_k}_w = {{\tau_w}^2 \over \rho\kappa u_{\tau} Y_p}.
+\label{wall_pk_3}
+\end{equation}
+%
+Assuming local equilibrium, $P_k = \rho\epsilon$, and using
+Equation~\ref{wall_pk_3} and Equation~\ref{utau} provides the form 
+of wall shear stress is given by,
+%
+\begin{equation}
+        \tau_w = \rho C_\mu^{1/2} k.
+\label{wall_tauw_equil}
+\end{equation}
+%
+Under the above assumptions, the near wall value for turbulent kinetic 
+energy, in the absence of convection, diffusion, or accumulation is given by,
+%
+\begin{equation}
+   k = {{u_\tau^2} \over {C_\mu^{1/2}}}.
+\label{wall_tke}
+\end{equation}
+
+This expression for turbulent kinetic energy is evaluated at the boundary faces of the
+exposed wall boundaries and is area-assembled to the nodal value for use in a dirichlet condition.
+
+\subsubsection{Turbulent Kinetic Energy and Specific Dissipation SST Low Reynolds Number Boundary conditions}
+
+For the turbulent kinetic energy equation, the wall boundary conditions follow that described for 
+the $k_{sgs}$ model, i.e., $k=0$.
+
+A Dirichlet condition is also used on $\omega$.  For this boundary condition, the $\omega$ equation depends only on the near-wall 
+grid spacing.  The boundary condition is given by,
+\begin{equation}
+\omega = {6 \nu \over \beta_1 y^{2}},
+\end{equation}
+which is valid for $y^{+} < 3$. 
+
+\subsubsection{Turbulent Kinetic Energy and Specific Dissipation SST High Reynolds Number Boundary conditions}
+The high Reynolds approach uses the law of the wall assumption and also follows the description 
+provided in the wall modeling section with only a slight modification in constant syntax,
+
+\begin{equation}
+k = {u_{\tau}^{2} \over \sqrt{\beta^*}}.
+\label{wallModelTke}
+\end{equation}
+% 
+In the case of $\omega$, an analytic expression is known in the log layer:
+\begin{equation}
+\omega = {u_{\tau} \over \sqrt{\beta^*} \kappa y},
+\end{equation}
+which is independent of $k$.  Because all these expressions require $y$ to be in the log layer, 
+they should absolutely not be used unless it can be guaranteed that $y^{+} > 10$, and $y^{+} > 25$ is preferable.
+%
+Automatic blending is not currently supported.
+
+\subsubsection{Solid Stress}
+The boundary conditions applied are either force provided by a static pressure, 
+
+\begin{equation}
+ F^n_i = \int \bar{P} n_i dS,
+\label{displacement}
+\end{equation}
+%
+or a Dirichlet condition, i.e., $u_i = u^{spec}_i$, on the displacement field. Above, $F^n_i$ is the force for
+component $i$ due to a prescribed [static] pressure. 
+
+\subsubsection{Intensity}
+The boundary condition for each intensity assumes a grey, diffuse surface as, 
+\begin{equation}
+  I\left(s\right) = {1 \over \pi} \left[ \tau \sigma T_\infty^4 
+                  + \epsilon \sigma T_w^4
+                  + \left(1 - \epsilon - \tau \right) K \right].
+\label{intBc}
+\end{equation}
+
+\subsection{Open Boundary Condition}
+Open boundary conditions require far more care. In general,
+open bcs are assembled by iterating faces and the boundary integration
+points on the exposed face. The parent element is also required
+since oftentimes gradients are used (for momentum). For an open boundary condition
+the flow can either leave or enter the domain depending on what the computed mass
+flow rate at the exposed boundary integration point is.
+
+\subsubsection{Continuity}
+For continuity, the boundary mass flow rate must also be computed. This value is stored and used
+for the other equations that require advection. The same formula is used for the pressure-stabilized 
+mass flow rate. However, the local pressure gradient
+for each boundary contribution is based on the difference between the interior integration
+point and the user-specified pressure which takes on the boundary value. The interior integration 
+point is determined by linear interpolation. For CVFEM, full elemental averaging is used while in EBVC discretization,
+the midpoint value between the nearest node and opposing node to the boundary integration point is used. In both
+discretization appoaches, non-orthogonal corrections are required. This procedure has been very important for 
+stability for CVFEM tet-based meshes where a natural non-orthogonality exists between the boundary and
+interior integration point.
+
+\subsubsection{Momentum}
+For momentum, the normal component of the stress is subtracted out we subtract out the normal component of the stress. The normal stress
+component for component i can be written as $F_k n_k n_i$. The tangential 
+component for component i is simply, $F_i - F_k n_k n_i$. As an example, the tangential
+viscous stress for component x is,
+
+\begin{equation}
+  F^T_x = F_x - (F_x n_x + F_y n_y ) n_x,
+\end{equation}
+which can be written in general component form as,
+\begin{equation}
+  F^T_i = F_i(1-n_i n_i) - \sum_{i!=j} F_j n_i n_j.
+\end{equation}
+
+Finally, the normal stress contribution is applied based on the user specified pressure,
+\begin{equation}
+  F^N_i = P^{Spec} A_i.
+\end{equation}
+
+For CVFEM, the face gradient operators are used for the thermal stress terms. For EBVC discretization, 
+from the boundary integration
+point, the nearest node (the ``Right'' state) is used as well as the opposing node
+(the ``Left'' state). The nearest node and opposing node are used to compute
+gradients required for any derivatives. This equation follows the standard
+gradient description in the diffusion section with non-orthogonal corrections used.
+In this formulation, the area vector is taken to be the exposed area vector. 
+Non-orthogonal terms are noted when the area vector and edge vector are not aligned.
+
+For advection, If the flow is leaving the domain, we simply advect the nearest nodal value
+to the boundary integration point. If the flow is coming into the domain,
+we simply confine the flow to be normal to the open boundary integration 
+point area vector. The value entrained can be the nearest node
+or an upstream velocioty value defined by the edge midpoint value. 
+
+\subsubsection{Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$ }
+Open boundary conditions assume a zero normal gradient. When flow is entering the domain, the far-field
+user supplied value is used. Far field values are used for property evaluations. When flow is leaving the domain, 
+the flow is advected out consistent with the
+choice of interior advection operator.
+
+\subsection{Symmetry Boundary Condition}
+
+\subsubsection{Continuity, Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$}
+Zero diffusion is applied at the symmetry bc.
+
+\subsubsection{Momentum}
+A symmetry boundary is one that is described by removal of the tangential stress. Therefore, only
+the normal component of the stress is applied:
+
+\begin{equation}
+  F^n_x = (F_x n_x + F_y n_y ) n_x,
+\end{equation}
+which can be written in general component form as,
+\begin{equation}
+  F^n_i = F_j n_j n_i.
+\end{equation}
+
+\subsection{Periodic Boundary Condition}
+A parallel multiple-periodic boundary condition is supported. Mappings are created between
+master/slave surface node pairs. The node pairs are obtained from a parallel search and are expected
+to be unique. The node pairs are used to map the slave global id to that of the master. This allows the linear
+system to include matrix rows for only a subset of the overall set of nodes. Moreover, a periodic 
+assembly for assembled quantities is managed via: $m+=s$ and $s=m$, where $m$ and $s$ are master/slave nodes, 
+respectively. For each parallel assembled quantity, e.g., dual volume, turbuelnce quantities, etc., this procedure
+is used. Periodic boxes and periodic couette and channel flow have been simulated in this code base. Tow forms of
+parallel searches exist and are supported (one through the Boost TPL and another through the STK Search module).
+
+\subsection{Contact Boundary Condition}
+Parallel sliding mesh algorithm based on extension of Blades, ~\cite{Blades:2004}, to the low Mach application space. This capability is 
+available in 2D and 3D. It has been designed for use in the EBVC approach, although CVFEM can also be used. 
+In this formulation, the exposed  surface is extruded into the opposing block's mesh.
+For two dimensional meshes, the edge face (from either a tri or quad mesh) is extruded as a quad mesh
+into the opposing block. For three dimensional meshes, the quad face is extruded as a hex element.
+
+Conceptually, the algorithm works as follows: First, the dual mesh is defined by identifying
+the ordinal of the exposed surface from its owning element. Mappings between each ordinal and the
+extruded element are made to determine how the extruded element is used to close the halo edge area vector,
+edge area vector already defined on the exposed side's set of edges and the dualvolume at the exposed
+side nodes.
+
+In Figure~\ref{quad-halo}, consider that the side that is comprised by node 2 and node 3 represents 
+the exposed surface in question. This exposed surface, as defined by the Exoduss II standard, is ordinal number two. 
+Conceptually, the extruded element is obtained by orientating ordinal one of this element to lie on top of the exposed 
+ordinal in question. Data structures are defined that map the exposed set of nodes to the extruded 
+nearest node and extruded opposing nodes. Moreover, the mapping of subcontrol area vectors within 
+the extruced element are provided.  
+
+In this simple quad example, it is noted that the mappings for all
+ordinals for the set of boundary element ordinals is the same. Specifically, the mapping between 
+nearest node 2 and 3 for face ordinal 2 for the matching face nodes of the extruded element are 2 and 1. Moreover, the mapping 
+between nearset nodel 2 and 3 for face ordinal 2 for the matching opposing face nodes of the extruded
+element are 3 and 4. These node mappings, along with the extruded distance allows defintion of the nodal coordinates
+of the extruded element. The halo edge area vector for face nodes 2 and 3 on ordinal 2 are subcontrol surface 2 and 4 
+while the edge on the exposed face maps to subcontrol surface 1 of the extruded element. Finally, the
+alignment of the subcontrl surface area vector and ordinal edge set is required. In the case of ordinal 2, as is the
+case for all ordinals, the natural edge defintion (poist from node 2 to node 3) is opposite of the subcontrol
+surface area vector definition (the dual area vector at the sub control surface always points from local node low to
+local node high, e.g, node 1->2.
+
+\begin{figure}[ht]
+\centerline{\includegraphics[width=3.0in]{images/quadel.pdf}}
+\vspace{0.1in}
+\caption{Quadraleteral mapping}
+\label{quad-halo}
+\end{figure}
+
+The same procedure is repeated for the extruded hex element, Figure~\ref{hex-halo}.
+In this case, each three dimensional quad face on the exposed contact surface is extruded
+into a hex element. For the hex case, the common face ordinal 1 is matched with each of the possible
+six exposed surfaces on the exposed face. Again, mappings are defined that allow for the 
+assembly of dual nodal volume, halo edge area vector, augmentation of the exposed side edge
+subcontrol surfaces and edge alignment wrt subcontrol surface area vetcors. For the hex case, the mappings are
+not the same for all exposed surfaces.
+
+Finally, the procedure to define the extrusion direction is based on a nodal surface normal direction.
+This quantity is defined by looping over all exposed surface faces and assembling the surface normal to the nodes.
+
+After the dual mesh is defined and associated area vector and dual volumes are assembled, the projected
+node for the pseudo edge is matched to an owning element in the opposing block. The search is performed using a
+parallel search that allows for the intersection of a sphere (the point that is projected) and the set of bounding boxes
+that is determined by all possible opposing blcok elements. Once the owning element for each projected point
+is determined, the appropriate flux contributions for each PDE is constructed. The halo point state is determined by linear
+interpolation within the owning element given the local isoparametric coordinates determined in the fine search. Here, the 
+fine search is the process whereby the set of candidate bounding boes for each extruded point are tested to see which
+is the best candiate. This process provides the final isoparametric coordinate set for each of the extruded exposed surface
+face nodes. Finally, matrix contributions are fully provided for the face nodes. This procedure finds that the row for the
+exposed node is augmeneted by the columns of the nodes on the owing opposing element.
+
+For cases in which rotation of one block defines a sliding mesh interface, the above procedure is replicated, e.g., projection,
+dual mesh definition, search and matrix graph initialization.
+\begin{figure}[ht]
+\centerline{\includegraphics[width=3.0in]{images/hex.pdf}}
+\vspace{0.1in}
+\caption{Hexahedron mapping}
+\label{quad-halo}
+\end{figure}
+
+\subsection{Non-conformal Boundary Condition}
+A surface-based approach based on a DG method has been discussed in the 2010 CTR summer proceedings by Domino, ~\cite{Domino:2010}. 
+A limited form (heat conduction) currently resides in the code base with currently planned extension to all other supported equations. 
+The current implementation supports both CVFEM and EBVC approaches.
+
