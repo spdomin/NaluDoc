@@ -19,7 +19,9 @@ Above, $G_i \bar{P}$ is defined as a L2 nodal projection of the pressure gradien
 a provisional velocity, $\hat u_i$, is used to signify that this velocity is the product of the momentum 
 solve. The difference between the projected nodal gradient interpolated to the gauss point and the 
 local gauss point pressure gradient provides a fourth order pressure stabilization
-term. This term can also be viewed as an algebraic form for the momentum residual.
+term. This term can also be viewed as an algebraic form for the momentum residual. For the continuity
+equation only, a series of element-based options that shift the integration points to the edges of the 
+iterated element is an option.
 
 \subsection{The Role of $\dot m$}
 

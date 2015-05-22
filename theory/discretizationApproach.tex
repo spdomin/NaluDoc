@@ -176,6 +176,9 @@ for a 2D edge with prescribed area vector) is as follows,
   -\int \Gamma \frac{\partial \phi}{\partial x_j} A_j = - \Gamma_{ip} \left[ \left(\frac{\partial N^{ip}_0} {\partial x} \phi_0 + \frac{\partial N^{ip}_1} {\partial x} \phi_1 \right) A_x + \left(\frac{\partial N^{ip}_0} {\partial y} \phi_0 + \frac{\partial N^{ip}_1} {\partial y} \phi_1 \right) A_y \right]
 \end{eqnarray}
 
+Standard Gauss point locations at the subcontrol surfaces can be shifted to the edge-midpoints for a more stable (monotonic)
+diffusion operator that is better conditioned for high aspect ratio meshes. 
+
 For the edge-based diffusion operator, special care is noted
 as there is no ability to use the elemental basis to define
 the diffusion operator. As with cell-centered schemes, non-orthogonal 
