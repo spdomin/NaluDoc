@@ -1,0 +1,114 @@
+%
+%  Documentation on Nalu
+%
+\documentclass[12pt]{report}
+\usepackage{ifpdf}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{ifthen}         % Conditional switching of mathmodels text
+\usepackage{cmap}           % Make ligatures searchable and copyable
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage{multirow}
+\ifpdf
+  \usepackage[
+     pdftitle={Nalu Verification Manual},
+     pdfpagemode=UseOutlines,
+     pdfstartview=FitH,
+     bookmarksopen=false,
+     bookmarksnumbered=true,
+     colorlinks=true,
+     linkcolor=blue,
+     citecolor=blue,
+     urlcolor=blue
+  ]{hyperref}
+\fi
+
+% Define this as the verification manual for conditional text within the document
+\newcommand{\manual}{Verification}
+
+\graphicspath{{./figures/}}  % Figure file location
+\topmargin 0.0in      % Top offset from a point 1 inch in from edge
+\oddsidemargin 0.0in  % Left offset from a point 1 inch in from edge
+\headheight 0.0in     % Height of header block
+\headsep 0.0in        % Gap between bottom of header block and top of body
+\topskip 0.0in        % Distance from top of body to baseline of first text line
+\textwidth 6.5in
+\textheight 9.0in
+
+% Define some shorthand notation
+\newcommand{\pd}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\iph}{{i+\frac{1}{2}}}
+\newcommand{\imh}{{i-\frac{1}{2}}}
+
+\begin{document}
+
+\include{widehat}   % Custom hat that can grow to arbitrarily large sizes
+\include{widetilde} % Custom tilde that can grow to arbitrarily large sizes
+
+\thispagestyle{empty}
+
+\phantom{.}
+\vspace{1.0in}
+
+\noindent
+\begin{tabular}{l}
+{\Large \bf Sierra Low Mach Module: Nalu} \\
+{\Large \bf Verification Manual -- Version 1.0} \\[12pt]
+\rule[5pt]{6.5in}{0.05in} \\
+\end{tabular}
+
+\vspace{1.5in}
+
+Sandia is a multiprogram laboratory operated by Sandia Corporation, a Lockheed Martin
+Company for the United States Department Of Energy's National Nuclear
+Security Administration under Contract DE-AC04-94AL85000.
+
+\vspace{3.0in}
+
+\noindent
+\begin{tabular}{l}
+{\large \bf Sandia National Laboratories} \\
+{Albuquerque, New Mexico} \\
+{web: \texttt{\href{http://github.com/spdomin/Nalu}{http://github.com/spdomin/Nalu}}} \\
+{\bf \today} \\
+\rule[7pt]{6.5in}{0.025in}
+\end{tabular}
+
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\ifpdf
+  \phantomsection\label{listoffigures}
+\fi
+\addcontentsline{toc}{figure}{List of Figures}
+\listoffigures
+
+\clearpage
+\ifpdf
+  \phantomsection\label{listoftables}
+\fi
+\addcontentsline{toc}{table}{List of Tables}
+\listoftables
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\input{introduction}
+
+\section{Verification}
+\input{verification}
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\end{document} 
