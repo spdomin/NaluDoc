@@ -72,7 +72,12 @@ component of velocity using the lagged projected nodal pressure gradient and pre
 
 A higher order unstructured CVFEM method has been developed by Domino~\cite{Domino:2014}. 
 A 2D structured mesh study demonstrating second order time and third order in space scheme 
-has been demosntrated. The work below pushes to unstructured meshes.
+has been demonstrated. The below work has emphasis on unstructured meshes.
+
+\subsection{Source Term Quadrature}
+Higher order accuracy is only demonstrated on solutions with source terms when a fully integrated
+approach is used. Lumping the source term evaluation is a second order error and is fully noted in
+the MMS study )not shown).
 
 \subsection{Projected nodal gradients}
 Results show that one must use design order projected nodal gradients. Figure~\ref{fig:pngTempMMS} demonstrates 
@@ -89,8 +94,16 @@ Dirichlet and periodic domains display the same order of convergence.
 \end{figure}
 
 \subsection{Momentum and Pressure}
-The same steady taylor vortex was run on a tquad mesh. Figure~\ref{fig:hoSTVMMS} demosntrates the second
-order accuracy for the projected nodal graidnet (pressure) and third order for the momentum field. 
+The steady taylor vortex exact solution was run on a tquad mesh. Figure~\ref{fig:hoSTVMMS} demonstrates 
+the order of accuracy for projected nodal gradients (pressure) and the velocity field (x-component). 
+Second order accuracy for the projected nodal gradient (pressure) and third order for the velocity field
+is realized when the consistent mass matrix approach is used for the projected nodal pressure gradient. 
+Note that this term is used in the pressure stabilization approach. However, order of convergence for 
+the projected nodal pressure gradient and velocity field is compromised when the lumped mass matrix approach
+is used for the pressure stabilization term. Note that both approaches use the fully integrated pressure
+gradient term in the momentum equation (i.e., $\int p n_i dS$). Therefore, the reduced order of integration
+for the projected nodal pressure gradient has consequence on the velocity field order of convergence.
+ 
 Again, dirichlet (inflow) and periodic domains display the same order of convergence.
 
 \begin{figure}
