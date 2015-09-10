@@ -1,0 +1,71 @@
+An alternative to classic Peclet number blending is the usage of a discontinuity capturing operator (DCO).
+In this method, an artifical viscosity is defined that is a function of the local residual and scaled computational 
+gradients. Viable usages for the DCO can be advection/diffusion problems in addition to the aforementioned RTE
+VMS approach.
+
+The formal finite element kernel for a DCO approach is as follows,
+\begin{equation}
+  \sum_e \int_\Omega \nu(\mathbf{R}) \frac{\partial w}{\partial x_i} g^{ij} \frac{\partial \phi} {\partial x_j} d\Omega,
+\label{dcoFEMForm}
+\end{equation}
+where $\nu(\mathbf{R})$ is the artifical viscosity which is a function of the pde fine-scale residual and $g^{ij}$ is the covariant
+metric tensor.
+
+For completeness, the covariant and contravarient metric tensor is given by,
+\begin{equation}
+  g^{ij} = \frac{\partial x_i} {\partial \xi_k}\frac{\partial x_j} {\partial \xi_k},
+\label{coVariant}
+\end{equation}
+
+ and
+
+\begin{equation}
+  g_{ij} = \frac{\partial \xi_k} {\partial x_i} \frac{\partial \xi_k} {\partial x_i}
+\label{coVariant}
+\end{equation}
+
+where $\xi = (\xi_1, \xi_2, \xi_3)^T$.
+
+The form of $\nu(\mathbf{R})$ currently used is as follows,
+\begin{equation}
+  \nu = \sqrt{ \frac{\mathbf{R_k} \mathbf{R_k}} {\frac {\partial \phi}{\partial x_i} g^{ij} \frac{\partial \phi}{\partial x_j}} }.
+\label{nuOne}
+\end{equation}
+
+A residual for a classic advection/diffusion/source pde is simply the fine scale residual computed at the gauss point,
+\begin{equation}
+ \mathbf{\hat R} = \frac{\partial \rho \phi}{\partial t} + \frac{\partial}{\partial x_j} (\rho u_j \phi - \mu^{eff} \frac{\partial \phi}{\partial x_j}) -S
+ \label{dcoResidual}
+\end{equation}
+Note that the above equation requires a second derivative whose source is the diffusion term. The first derivative is generally determined
+by using projected nodal gradients. As will be noted in the pressure stabilization section, the advection term carries the pressure
+stabilization terms. However, in the above equation, these terms are not explicity noted. Therefore, we subtract the fine scale continuity
+equation to obtain the final general form of the source term,
+\begin{equation}
+ \mathbf{R} = \mathbf{\hat R} -  (\frac{\partial \rho}{\partial t} + \frac{\partial \rho u_j }{\partial x_j}).
+ \label{dcoResidual}
+\end{equation}
+
+Using a piecewise-constant test function suitable for CVFEM and EBVC schemes (the reader is refered to the VMS RTE section), 
+Eq.~\ref{dcoFEMForm} can be written as,
+\begin{equation}
+  -\sum_e \int_\Gamma \nu(\mathbf{R}) g^{ij} \frac{\partial \phi} {\partial x_j} n_i dS.
+\label{dcoFVForm}
+\end{equation}
+
+\subsection{Local or Projected DCO Diffusive Flux Coefficient}
+While the DCO kernel is certainly at subcontrol surfaces, the evaluation of $\nu$ can be computed by a multitude of
+approaches. For example, the artificial diffusive flux coefficient can be computed locally (with local residuals and local metric tensors)
+or can be projected to the nodes (via an $L_{oo}$ or $L_2$ projection) and re-interpolated to the gauss points. The former results 
+in a sharper local value while the later results in a more filtered-like value.
+
+\subsection{Approaches for near-zero gradients}
+The denominator in the $\nu$ expression can approach zero in regions of the flow that are uniform. In practice, the DCO approach
+is highly sensitive to the numerical ``small'' limit that must be added to avoid a divide-by-zero. Values of ``small'' $too$ small
+result in stiff linear solves while values $too$ large result in conflicts in the correct order of the gradient term. Efforts
+are still underway to determine a more appropriate approach.
+
+\subsection{General Findings}
+In general, the DCO approach seems to work well for a canonical uniform flow through which a passive scalar advects and diffuses.
+Sensitivity to the denominator (as noted above) are found. In a helium plume, the above form results in an excessively diffuse
+plume, while no monotonitciy issues are noted. The findings apply to both low order and higher order CVFEM schemes.
