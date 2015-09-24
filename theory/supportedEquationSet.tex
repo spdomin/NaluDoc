@@ -200,7 +200,7 @@ The simple Fickian diffusion velocity approximation, Equation~\ref{diffvel1},
 is assumed, so that the mean diffusive heat flux vector $\bar{q}_j$ is
 %
 \begin{eqnarray}
-  \bar{q}_j = - \overline{ \left[ {\mu \over {\rm Pr}}
+  \bar{q}_j = - \overline{ \left[ {\kappa \over {C_p}}
                        {{\partial h} \over {\partial x_j}}
                  -  {\mu \over {\rm Pr}} 
         \sum_{k=1}^K h_k {{\partial Y_k} \over {\partial x_j}} \right] }
@@ -210,8 +210,11 @@ is assumed, so that the mean diffusive heat flux vector $\bar{q}_j$ is
 %
 If Sc = Pr, i.e., unity Lewis number (Le = 1), then the diffusive heat
 flux vector simplifies to $\bar{q}_j = -\frac{\mu}{\mathrm{Pr}}
-\frac{\partial \tilde{h}}{\partial x_j}$.  The viscous dissipation 
-term is closed by
+\frac{\partial \tilde{h}}{\partial x_j}$.  In the code base, the user
+has the ability to either specify a laminar Prandtl number, which is
+a constant, or provide a property evaluator for thermal conductivity. Inclusion
+of a Prandtl number prevails and ensures that the thermal conductivity is computed
+base on $\kappa = \frac{C_p \mu}{Pr}$. The viscous dissipation term is closed by
 %
 \begin{eqnarray}
 \overline{\tau_{ij} {{\partial u_i} \over {\partial x_j }}}
