@@ -20,24 +20,39 @@ order upwind ($\phi_{upw}$) and a generalized unstabilized central
 \label{advPhiIP}
 %
 
-In the above equation, $\eta$ is a cell Peclet blending, The generalized
+In the above equation, $\eta$ is a cell Peclet blending. The generalized
 central operator can take on a pure second order or psuedo fourth order form (see below). 
-In general, a hybrid upwind factor, $\gamma$, can be used to ensure that no stabilization 
-is added ($\eta = 0$) or that full upwind stabilization is included (as will be shown, 
+For the classic Peclet number functional form (see Equation~\ref{classicPF}) 
+a hybrid upwind factor, $\gamma$, can be used to 
+ensure that no stabilization is added ($\eta = 0$) or that full upwind stabilization is included (as will be shown, 
 even with limiter functions). The hybrid upwind factor allows one to modify the functional
 blending function; values of unity result in the normal blending function 
 response in  Figure~\ref{pec-blend}; values of zero yield
 a pure central operator, i.e., blending function of zero; values $>>$ unity result 
 in a blending function value of unity, i.e., pure upwind. The constant $A$
-is implemented as above with a value of 5. This value can not be changed
-via the input file. The above functional form is named the ``classic'' form
+is implemented with a value of 5. The value of this constant can not be changed
+via the input file. Note that this functional form is named the ``classic'' form
 within the input file.
 
+The classic cell Peclet blending function is given by
+\begin{equation}
+  \eta = \frac {{\gamma \rm Pe}^2} {5 + {\gamma \rm Pe}^2}.
+\label{classicPF}
+\end{equation}
 The classic Peclet functional form makes it difficult to dial in the exact
 point at which the Peclet factor transitions from pure upwind to pure central. 
 Therefore, an alternative form is provided that has a hyperbolic tangeat 
-functional form. This form allos one to specify the transition point and 
-the width of the transition (see below).
+functional form. This form allows one to specify the transition point and 
+the width of the transition (see Equation~\ref{tanhPF}).
+The tanh form is as follows,
+\begin{equation}
+  \eta = \frac {\frac {1}{2}[1+tanh(\frac{\rm Pe - c_{trans}}{c_{width}})] -\lambda}{\delta}.
+\label{tanhPF}
+\end{equation}
+Above, the constant $c_{trans}$ represents the transition Peclet number while $c_{width}$ represents the width of 
+the transition. The value of $\lambda$ is simply the shift between of the raw tanh function
+from zero while $\delta$ is the difference between the max Peclet factor (unity) and the minimum value
+prior to normalization. This approach ensures that the function starts at zero and asymtotes to unity. 
 
 The cell-Peclet number is computed for each sub-face in the element
 from the two adjacent left (L) and right (R) nodes,
@@ -45,26 +60,12 @@ from the two adjacent left (L) and right (R) nodes,
    {\rm Pe} = {{{1 \over 2} \left( u_{R,i} + u_{L,i} \right) 
                       \left( x_{R,i} - x_{L,i} \right) } \over \nu }.
 \end{equation}
-A dot-product is implied by repeated indices. The classic cell Peclet blending
-function is, therefore, the following:
-
-\begin{equation}
-  \eta = \frac {{\gamma \rm Pe}^2} {5 + {\gamma \rm Pe}^2}.
-\end{equation}
-while the tanh form is as follows:
-
-\begin{equation}
-  \eta = \frac {\frac {1}{2}[1+tanh(\frac{\rm Pe - c_{trans}}{c_{width}})] -\lambda}{\delta}.
-\end{equation}
-Above, the constants $c_{trans}$ is the transition Peclet number while $c_{width}$ is the width of 
-the transition. The value of $\lambda$ is simply the shift between of the raw tanh function
-from zero while $\delta$ is the difference between the max Peclet factor (unity) and the minimum value
-prior to normalization. This approach ensures that the function starts at zero and asymtotes to unity. 
+A dot-product is implied by repeated indices. 
 
 \begin{figure} [h]
-\centerline{\includegraphics[height=3.0in]{images/peclet}}
+\centerline{\includegraphics[height=3.0in]{images/pecletFactor}}
 \vspace{0.1in}
-\caption{Cell-Peclet number blending function (classic).}
+\caption{Cell-Peclet number blending function outlining classic (varying the hybrid factor $\gamma$ from 1.0, 0.1 and 0.01; again $A=5$) and tanh functional form ($c_{trans}=2000$ and $c_{width}=200$).}
 \label{pec-blend}
 \end{figure}
  
