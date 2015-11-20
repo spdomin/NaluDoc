@@ -11,7 +11,7 @@ The formal finite element kernel for a DCO approach is as follows,
 where $\nu(\mathbf{R})$ is the artifical viscosity which is a function of the pde fine-scale residual and $g^{ij}$ is the covariant
 metric tensor.
 
-For completeness, the covariant and contravarient metric tensor is given by,
+For completeness, the covariant and contravarient metric tensor are given by,
 \begin{equation}
   g^{ij} = \frac{\partial x_i} {\partial \xi_k}\frac{\partial x_j} {\partial \xi_k},
 \label{coVariant}
@@ -20,12 +20,12 @@ For completeness, the covariant and contravarient metric tensor is given by,
  and
 
 \begin{equation}
-  g_{ij} = \frac{\partial \xi_k} {\partial x_i} \frac{\partial \xi_k} {\partial x_j}
+  g_{ij} = \frac{\partial \xi_k} {\partial x_i} \frac{\partial \xi_k} {\partial x_j},
 \label{coVariant}
 \end{equation}
 
 where $\xi = (\xi_1, \xi_2, \xi_3)^T$.
-
+%
 The form of $\nu(\mathbf{R})$ currently used is as follows,
 \begin{equation}
   \nu = \sqrt{ \frac{\mathbf{R_k} \mathbf{R_k}} {\frac {\partial \phi}{\partial x_i} g^{ij} \frac{\partial \phi}{\partial x_j}} }.
@@ -46,26 +46,36 @@ equation to obtain the final general form of the source term,
  \label{dcoResidual}
 \end{equation}
 
-Using a piecewise-constant test function suitable for CVFEM and EBVC schemes (the reader is refered to the VMS RTE section), 
-Eq.~\ref{dcoFEMForm} can be written as,
+Using a piecewise-constant test function suitable for CVFEM and EBVC schemes (the reader is refered to 
+the VMS RTE section), Eq.~\ref{dcoFEMForm} can be written as,
 \begin{equation}
   -\sum_e \int_\Gamma \nu(\mathbf{R}) g^{ij} \frac{\partial \phi} {\partial x_j} n_i dS.
 \label{dcoFVForm}
 \end{equation}
+%
+A fourth order form, which writes the stabilization as the difference between the Gauss-point gradient 
+and the projected nodal gradient interpolated to the Gauss-point, is also supported,
+\begin{equation}
+  -\sum_e \int_\Gamma \nu(\mathbf{R}) g^{ij} (\frac{\partial \phi} {\partial x_j} - G_j \phi ) n_i dS.
+\label{dcoFVForm4th}
+\end{equation}
 
 \subsection{Local or Projected DCO Diffusive Flux Coefficient}
-While the DCO kernel is certainly at subcontrol surfaces, the evaluation of $\nu$ can be computed by a multitude of
-approaches. For example, the artificial diffusive flux coefficient can be computed locally (with local residuals and local metric tensors)
-or can be projected to the nodes (via an $L_{oo}$ or $L_2$ projection) and re-interpolated to the gauss points. The former results 
-in a sharper local value while the later results in a more filtered-like value.
+While the DCO kernel is certainly evaluated at the subcontrol surfaces, the evaluation of $\nu$ can be 
+computed by a multitude of approaches. For example, the artificial diffusive flux coefficient 
+can be computed locally (with local residuals and local metric tensors) or can be projected 
+to the nodes (via an $L_{oo}$ or $L_2$ projection) and re-interpolated to the gauss points. 
+The former results in a sharper local value while the later results in a more filtered-like value.
+The code base only supports a local DCO $\nu$ calculation.
 
-\subsection{Approaches for near-zero gradients}
-The denominator in the $\nu$ expression can approach zero in regions of the flow that are uniform. In practice, the DCO approach
-is highly sensitive to the numerical ``small'' limit that must be added to avoid a divide-by-zero. Values of ``small'' $too$ small
-result in stiff linear solves while values $too$ large result in conflicts in the correct order of the gradient term. Efforts
-are still underway to determine a more appropriate approach.
+\subsection{Limiter}
+In general, the DCO-$\nu$ is prone to percision issues when the gradients are very close to zero. As such, the 
+value of $\nu$ is limited to a first-order like value. This parameter is proposed as follows: if an operator
+were written as a Galerkin (un-stabilized) and diffusion operator, what is the value of the diffusion coefficient
+such that first-order upwind is obtained for the combined operator? This upwind limited value of $\nu$ provides the
+highest value that this operator can be.
 
 \subsection{General Findings}
-In general, the DCO approach seems to work well for a canonical uniform flow through which a passive scalar advects and diffuses.
-Sensitivity to the denominator (as noted above) are found. In a helium plume, the above form results in an excessively diffuse
-plume, while no monotonitciy issues are noted. The findings apply to both low order and higher order CVFEM schemes.
+In general, the DCO approach seems to work best when running the fourth-order option as the second-order 
+implementation still looks more diffuse. When compared to the standard MUSCL-limited scheme, the DCO
+is the preferred choice. More work is underway to improve stabilization methods.
