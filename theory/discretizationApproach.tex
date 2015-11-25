@@ -25,24 +25,33 @@ nonlinear residual convergence can be delayed.
 The classic low Mach algorithm uses the finite volume technique known
 as the control volume finite element method, see Schneider,~\cite{Schneider:1987}, or 
 Domino,~\cite{Domino:2006}. Control volumes 
-(the mesh dual) are constructed about the nodes, shown in Fig.~\ref{convol}.
+(the mesh dual) are constructed about the nodes, shown in Fig.~\ref{cvfemP1_P2} (left).
 Each element contains a set of sub-faces that define control-volume surfaces.
 The sub-faces consist of line segments (2D) or surfaces (3D).
 The 2D segments are connected between the element centroid
-and the edge centroids. The 3D surfaces are connected between
+and the edge centroids. The 3D surfaces (not shown here) are connected between
 the element centroid, the element face centroids, and the
 edge centroids. Integration points also exist within the sub-control
 volume centroids. 
 
 Recent work by Domino,~\cite{Domino:2014}, has provided a proof-of-concept higher order CVFEM implementation 
-whereby the linear basis and dual mesh definition is extended to higher order. However, the current code base
-does not yet contain this capability as the production merrit is being tested.
+whereby the linear basis and dual mesh definition is extended to higher order. The curent code base supports
+the usage of P=2 elements (quadratic) for both 2D and 3D quad/hex topologies. This method has been formally 
+demonstrated to be third-order spatially accurate and second-order in-time accurate.
 
-\begin{figure}[h]
-  \centerline{\includegraphics[height=3.0in]{images/convol}}
-  \caption{A control volume centered about a finite-element node
-           in a collection of 2D quadrilateral elements.}
-  \label{convol}
+\begin{figure}
+  \centering
+  \subfigure[CVFEM P=1.]
+  {
+    \includegraphics[height=1.5in]{images/cvfemHO_P1}
+  }
+  \subfigure [CVFEM P=2.]
+  {
+    \includegraphics[height=1.5in]{images/cvfemHO_P2}
+  }
+  \vspace{0.1in}
+  \caption{Dual mesh defined for the two-dimensional CVFEM quad element.}
+  \label{cvfemP1_P2}
 \end{figure}
 
 When using CVFEM, the discretized equations described in this manual
@@ -128,32 +137,56 @@ Realm line command in combination of the LowMachEOM system line command,
 \subsection{Projected Nodal Gradients}
 In the edge or element-based algorithm, projected nodal gradients
 are commonplace. Projected nodal gradients are used in the fourth 
-order pressure stabilization terms, higher order upwind methods and
-turbulence source terms. For an edge-based scheme, they are also used
-in the diffusion term when non-orthogonality of the mesh is noted.
+order pressure stabilization terms, higher order upwind methods, discontinuity
+capturing operators (DCO) and turbulence source terms. For an edge-based scheme, 
+they are also used in the diffusion term when non-orthogonality of the mesh is noted.
 
 There are many procedures for determining the projected 
 nodal gradient ranging from element-based schemes to
-edge-based approached. For a lumped L2 projected nodal gradient,
+edge-based approached. In general, the projected nodal gradient is viewed as an $L_2$ 
+minimization between the discontinuous Gauss-point value and the continuous
+nodal value. The projected nodal gradient, in an $L_2$ sence is given by,
+
+\begin{equation}
+\int w G_j \phi {dV} = \int \frac{\partial \phi}{\partial x_j}{dV}.
+\label{PNG}
+\end{equation}
+
+Upong integration-by-parts and a piece-wise constant test function, the above equation
+is written as,
+
+\begin{equation}
+\int w_I G_j \phi {dV} = \int \phi_{ip} n_j {dS}.
+\label{PNG}
+\end{equation}
+
+For a lumped L2 projected nodal gradient,
 the approach is based on a Green-Gauss integration,
 
 \begin{equation}
 G_j \phi = \frac{\int \phi_{ip} A_j}{dV}.
 \label{greenGauss}
-\end{equation}
-Above, the value at the integration point can either be
-based on the CVFEM dual mesh (evaluated at the subcontrol
-surface, i.e., the line command option, ``$element$'' or the ``$edge$'', which 
-evaluates the term at the edge midpoint using the assemble edge area vector. 
-In the description that follows, $\bar{G_j \phi}$
-represent the average nodal gradient evaluated at the integration
-point of interest.
+\end{equation}In the above lumped mass matrix approach, the value at the 
+integration point can either be based on the CVFEM dual mesh 
+evaluated at the subcontrol surface, i.e., the line command option, 
+``$element$'' or the ``$edge$'', which evaluates the term at the edge 
+midpoint using the assemble edge area vector. In all cases, the lumped mass
+matrix approach is strickly second order accurate. When running higher order 
+CVFEM, a consistent mass matrix appraoch is required to maintain design order 
+of the overall discretization. This is strickly due to the pressure stabilization
+whose accuracy can be affected by the form of the projected nodal gradient (see the Nalu
+theory manual or a variety of SNL-based publications).
+
+In the description that follows, $\bar{G_j \phi}$ represent the average nodal 
+gradient evaluated at the integration point of interest.
 
 The choice of projected nodal gradients is specified in the input file for each dof.
 Keywords ``$element$'' or ``$edge$`` are used to define the form of the projection. The
 forms of the projected nodal gradients is arbitrary relative to the choosed underlying
 discretization. For strongly non-orthoginal meshes, it is recommended to use an element-based
-projected nodal gradient for the continuity equation when the EBVC method is in use.
+projected nodal gradient for the continuity equation when the EBVC method is in use. In some limited
+cases, e.g., pressure, mixture fraction and enthalpy, the $manage-png$ line command can be used to
+solve the simple linear system for the consistent mass matrix.
 
 \subsection{Time and Source Terms}
 Time and source terms also volumetric contributions and also use the dual nodal volume. In both

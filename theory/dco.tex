@@ -79,3 +79,6 @@ highest value that this operator can be.
 In general, the DCO approach seems to work best when running the fourth-order option as the second-order 
 implementation still looks more diffuse. When compared to the standard MUSCL-limited scheme, the DCO
 is the preferred choice. More work is underway to improve stabilization methods.
+Note that a limited set of DCOs are activated in the code base with specific
+interest on scalar transport, e.g, mixture fraction and static enthalpy transport. When using the $4^{th}$ order method, the consistent mass matrix approach 
+for the projected nodal gradinets is supported.
