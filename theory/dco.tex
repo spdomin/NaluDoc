@@ -8,8 +8,8 @@ The formal finite element kernel for a DCO approach is as follows,
   \sum_e \int_\Omega \nu(\mathbf{R}) \frac{\partial w}{\partial x_i} g^{ij} \frac{\partial \phi} {\partial x_j} d\Omega,
 \label{dcoFEMForm}
 \end{equation}
-where $\nu(\mathbf{R})$ is the artifical viscosity which is a function of the pde fine-scale residual and $g^{ij}$ is the covariant
-metric tensor.
+where $\nu(\mathbf{R})$ is the artifical viscosity which is a function of the pde fine-scale residual and $g^{ij}$ 
+is the covariant metric tensor.
 
 For completeness, the covariant and contravarient metric tensor are given by,
 \begin{equation}
@@ -37,14 +37,27 @@ A residual for a classic advection/diffusion/source pde is simply the fine scale
  \mathbf{\hat R} = \frac{\partial \rho \phi}{\partial t} + \frac{\partial}{\partial x_j} (\rho u_j \phi - \mu^{eff} \frac{\partial \phi}{\partial x_j}) -S
  \label{dcoResidual}
 \end{equation}
-Note that the above equation requires a second derivative whose source is the diffusion term. The first derivative is generally determined
-by using projected nodal gradients. As will be noted in the pressure stabilization section, the advection term carries the pressure
-stabilization terms. However, in the above equation, these terms are not explicity noted. Therefore, we subtract the fine scale continuity
-equation to obtain the final general form of the source term,
+Note that the above equation requires a second derivative whose source is the diffusion term. The first derivative 
+is generally determined by using projected nodal gradients. As will be noted in the pressure stabilization section, 
+the advection term carries the pressure stabilization terms. However, in the above equation, these terms are not 
+explicity noted. Therefore, we subtract the fine scale continuity equation to obtain the final general form of 
+the source term,
 \begin{equation}
  \mathbf{R} = \mathbf{\hat R} -  (\frac{\partial \rho}{\partial t} + \frac{\partial \rho u_j }{\partial x_j}).
  \label{dcoResidual}
 \end{equation}
+
+In general, the DCO-$\nu$ is prone to percision issues when the gradients are very close to zero. As such, the 
+value of $\nu$ is limited to a first-order like value. This parameter is proposed as follows: if an operator
+were written as a Galerkin (un-stabilized) plus a diffusion operator, what is the value of the diffusion coefficient
+such that first-order upwind is obtained for the combined operator? This upwind limited value of $\nu$ provides the
+highest value that this coefficient can (or should) be. The current form of the limited upwind $\nu$ is as follows,
+
+\begin{equation}
+  \nu^{upw} = C_{upw}(\rho^2  u_i g_{ij} u_j )^{\frac{1}{2}}
+\label{dcoFVForm}
+\end{equation}
+where $C_{upw}$ is generally taked to be ~0.1.
 
 Using a piecewise-constant test function suitable for CVFEM and EBVC schemes (the reader is refered to 
 the VMS RTE section), Eq.~\ref{dcoFEMForm} can be written as,
@@ -68,17 +81,10 @@ to the nodes (via an $L_{oo}$ or $L_2$ projection) and re-interpolated to the ga
 The former results in a sharper local value while the later results in a more filtered-like value.
 The code base only supports a local DCO $\nu$ calculation.
 
-\subsection{Limiter}
-In general, the DCO-$\nu$ is prone to percision issues when the gradients are very close to zero. As such, the 
-value of $\nu$ is limited to a first-order like value. This parameter is proposed as follows: if an operator
-were written as a Galerkin (un-stabilized) and diffusion operator, what is the value of the diffusion coefficient
-such that first-order upwind is obtained for the combined operator? This upwind limited value of $\nu$ provides the
-highest value that this operator can be.
-
 \subsection{General Findings}
 In general, the DCO approach seems to work best when running the fourth-order option as the second-order 
 implementation still looks more diffuse. When compared to the standard MUSCL-limited scheme, the DCO
 is the preferred choice. More work is underway to improve stabilization methods.
 Note that a limited set of DCOs are activated in the code base with specific
-interest on scalar transport, e.g, mixture fraction and static enthalpy transport. When using the $4^{th}$ order method, the consistent mass matrix approach 
-for the projected nodal gradinets is supported.
+interest on scalar transport, e.g, mixture fraction and static enthalpy transport. When using the $4^{th}$ 
+order method, the consistent mass matrix approach for the projected nodal gradients is supported.
