@@ -32,7 +32,7 @@ The temporal order of accuracy for the first order backward Euler and second ord
 are outlined in Figure~\ref{fig:fo4thTstep} and Figure~\ref{fig:fo4thTstep}. Each of these
 simulations used a hybrid factor of zero to ensure pure second order central usage. A
 fixed Courant number of two was used for each of the three meshes (100x100, 200x200 and 400x400).
-The simulation was run out to 0.2 seconds and L2 error norms were computed. The standard
+The simulation was run out to 0.2 seconds and $L_2$ error norms were computed. The standard
 fourth order pressure stabilization scheme with time step scaling is used. This scheme is also
 known as the standard pressure-free approximate pressure projection scheme.
 
@@ -111,3 +111,79 @@ Again, dirichlet (inflow) and periodic domains display the same order of converg
 \caption{Error norms as a function of mesh size for the Steady Taylor Vortex momentum and pressure gradient field.}
 \label{fig:hoSTVMMS}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{3D Steady Non-isothermal with Buoyancy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Building from the basic functional form of the Taylor Vortex,
+a non-isothermal solution (momentum, pressure and static enthalpy)
+is manufactured as follows:
+
+\begin{eqnarray}
+  u &=& -u_o cos(a \pi x) sin(a \pi y ) sin(a \pi z) \nonumber \\
+  v &=& +v_o sin(a \pi x) cos(a \pi y ) sin(a \pi z) \nonumber \\
+  w &=& -w_o sin(a \pi x) sin(a \pi y ) cos(a \pi z) \nonumber \\
+  p &=& -\frac{p_o}{4}( cos(2 a \pi x) + cos(2 a \pi y ) + cos(2 a \pi z) )  \nonumber \\
+  h &=& +h_o cos(a_h \pi x) cos(a_h \pi y ) cos(a_h \pi z)  \nonumber \\
+\label{3dNonIso}
+\end{eqnarray}
+
+The equation of state is simply the ideal gas law, 
+\begin{equation}
+  \rho = \frac{P^{ref} M}{R T}
+\label{idealGasEOS}
+\end{equation}
+
+The simulation is run on a three-dimensional domain ranging from -0.05:+0.05 with
+constants $a, a_h, M, R, C_p, P^{ref}, T_{ref}, Pr, \mu$ equal to 
+(20, 10, 30, 10, 0.01, 100, 300, 0.8, 0.00125), respectively.
+
+At reference conditions, the density is unity. The effects of buoyancy are also provided 
+by an arbitrary gravity vector of magnitude of approximately ten, $g_i = (-5, 6, 7)^T$. On this domain, 
+the enthalpy ranges from zero to unity. Given the reference values, the temperature 
+field ranges from 300 to 400K which is designed to mimic a current LES non-isothermal 
+validation suite.
+
+Edge- and element-based discretization (P=1) demonstrate second order convergence
+in the $L_2$ norm for u, v, w and temperature. This test is captured within the 
+variableDensityMMS regression test suite.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{3D Steady Non-uniform with Buoyancy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Building from the basic functional form of the Taylor Vortex,
+a non-uniform solution (momentum, pressure and mixture fraction)
+is manufactured as follows:
+
+\begin{eqnarray}
+  u &=& -u_o cos(a \pi x) sin(a \pi y ) sin(a \pi z) \nonumber \\
+  v &=& +v_o sin(a \pi x) cos(a \pi y ) sin(a \pi z) \nonumber \\
+  w &=& -w_o sin(a \pi x) sin(a \pi y ) cos(a \pi z) \nonumber \\
+  p &=& -\frac{p_o}{4}( cos(2 a \pi x) + cos(2 a \pi y ) + cos(2 a \pi z) )  \nonumber \\
+  z &=& +z_o cos(a_z \pi x) cos(a_z \pi y ) cos(a_z \pi z)  \nonumber \\
+\label{3dNonIso}
+\end{eqnarray}
+
+The equation of state is simply the standard inverse mixture fraction 
+property expression for density, 
+\begin{equation}
+  \rho = \frac{1} {\frac{z}{rho^p} + \frac{1-z}{rho^s} }
+\label{idealGasEOS}
+\end{equation}
+
+The simulation is run on a three-dimensional domain ranging from -0.05:+0.05 with
+constants $a, a_z, \rho^p, \rho^s, Sc, \mu$ equal to (20, 10, 0.1, 1.0, 0.8, 0.001),
+respectively.
+
+At reference conditions, the density is that of the primary condition (0.1). 
+The effects of buoyancy are also provided by an arbitrary gravity vector 
+of magnitude of approximately ten, $g_i = (-5, 6, 7)^T$. On this domain, the mixture 
+fraction ranges from zero to unity. This test case is designed to support 
+the helium plume DNS study with primary and secondary density values of helium
+and air, respectively.
+
+Edge- and element-based discretization (P=1) demonstrate second order convergence
+in the $L_2$ norm for u, v, w and mixture fraction. This test is captured within the 
+variableDensityMMS regression test suite.
