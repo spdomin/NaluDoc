@@ -45,21 +45,21 @@ The Steady Taylor Vortex will be used to verify the spatial accuracy for the ful
 operators supported in Nalu.
  
 \begin{figure}
-\centerline{\includegraphics[width=0.6\textwidth]{figures/convTaylorVortexFO.pdf}}
+\centerline{\includegraphics[width=0.8\textwidth]{figures/convTaylorVortexFO.pdf}}
 \caption{Error norms as a function of timestep size for the $u$ and $v$
 component of velocity using fourth order pressure stabilization with timestep scaling, backward Euler}
 \label{fig:fo4thTstep}
 \end{figure}
 
 \begin{figure}
-\centerline{\includegraphics[width=0.6\textwidth]{figures/convTaylorVortexSO.pdf}}
+\centerline{\includegraphics[width=0.8\textwidth]{figures/convTaylorVortexSO.pdf}}
 \caption{Error norms as a function of timestep size for the $u$ and $v$
 component of velocity using fourth order pressure stabilization with timestep scaling, BDF2}
 \label{fig:so4thTstep}
 \end{figure}
 
 \begin{figure}
-\centerline{\includegraphics[width=0.6\textwidth]{figures/convTaylorVortexSO_ElemLagElemPf.pdf}}
+\centerline{\includegraphics[width=0.8\textwidth]{figures/convTaylorVortexSO_ElemLagElemPf.pdf}}
 \caption{Error norms as a function of timestep size for the $u$ and $v$
 component of velocity using the lagged projected nodal pressure gradient and pressure-free pressure projection scheme; all with with timestep scaling, BDF2}
 \label{fig:hybridTstep}
@@ -81,7 +81,7 @@ Results show that one must use design order projected nodal gradients. Figure~\r
 a code verification result for a steady thermal manufactured solution comparing lumped and consistent mass matrix approaches for the projected nodal gradient on a quadratic tquad mesh. In the lumped approach, a simple explicit algorithm is processed while for the consistent approach, a simple mass matrix inversion equation must be solved. The lumped approach is first order while the consistent approach retains the expected second order as the projected nodal gradient is expected to be order $P$. Both Dirichlet and periodic domains display the same order of convergence.
 
 \begin{figure}
-\centerline{\includegraphics[width=0.6\textwidth]{figures/ho_heatCondMMM_dtdx.pdf}}
+\centerline{\includegraphics[width=0.8\textwidth]{figures/ho_heatCondMMM_dtdx.pdf}}
 \caption{Error norms as a function of mesh size for a CMM and LMM projected nodal gradient on a quadratic tquad mesh.}
 \label{fig:pngTempMMS}
 \end{figure}
@@ -92,7 +92,7 @@ The steady taylor vortex exact solution was run on a quadratic tquad mesh. Figur
 Again, dirichlet (inflow) and periodic domains display the same order of convergence.
 
 \begin{figure}
-\centerline{\includegraphics[width=0.6\textwidth]{figures/ho_stvUandDpDx.pdf}}
+\centerline{\includegraphics[width=0.8\textwidth]{figures/ho_stvUandDpDx.pdf}}
 \caption{Error norms as a function of mesh size for the Steady Taylor Vortex momentum and pressure gradient field.}
 \label{fig:hoSTVMMS}
 \end{figure}
