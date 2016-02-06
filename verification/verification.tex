@@ -29,20 +29,17 @@ results in a maximum cell reynolds number of twenty.
 
 \subsection{Temporal Order Of Accuracy Results}
 The temporal order of accuracy for the first order backward Euler and second order BDF2
-are outlined in Figure~\ref{fig:fo4thTstep} and Figure~\ref{fig:fo4thTstep}. Each of these
+are outlined in Figure~\ref{fig:fo4thTstep} and Figure~\ref{fig:so4thTstep}. Each of these
 simulations used a hybrid factor of zero to ensure pure second order central usage. A
 fixed Courant number of two was used for each of the three meshes (100x100, 200x200 and 400x400).
 The simulation was run out to 0.2 seconds and $L_2$ error norms were computed. The standard
 fourth order pressure stabilization scheme with time step scaling is used. This scheme is also
-known as the standard pressure-free approximate pressure projection scheme.
+known as the standard incremental pressure, approximate pressure projection scheme.
 
 Two other pressure projection schemes have been evaluated in this study. Each represent a 
 simplification of the standard pressure projection scheme. Figure~\ref{fig:hybridTstep} outlines
-two projection schemes: the first is when the projected nodal gradinet is lagged and the 
-second is the classic pressure-free pressure approximate projection scheme with second
-order pressure stabilization. The error plots demonstrate that lagging the projected nodal
-gradient for pressure retains second order accuracy. However, as expected the pressure
-free pressure projection scheme is confirmed to be first order accurate.
+three projection schemes: the first is when the projected nodal gradient appearing in the fourth-order pressure stabilization is lagged while the second is the classic pressure-free pressure approximate projection scheme with second order pressure stabilization. The third is the baseline fourth-order incremental pressure projection scheme. The error plots demonstrate that lagging the projected nodal gradient for pressure retains second order accuracy. However, as expected the pressure
+free pressure projection scheme is confirmed to be first order accurate given the first order splitting error noted in this fully implicit momentum solve.
 
 The Steady Taylor Vortex will be used to verify the spatial accuracy for the full set of advection
 operators supported in Nalu.
@@ -81,28 +78,16 @@ the MMS study (not shown).
 
 \subsection{Projected nodal gradients}
 Results show that one must use design order projected nodal gradients. Figure~\ref{fig:pngTempMMS} demonstrates 
-a code verification result for a steady thermal manufactured solution comparing lumped and consistent mass
-matrix approaches for the projected nodal gradient on a tquad mesh. In the lumped approach, a simple 
-explicit algorithm is processed while for the consistent approach, a simple mass matrix inversion equation 
-must be solved. The lumped approach is first order while the consistent approach retains second order. Both
-Dirichlet and periodic domains display the same order of convergence.
+a code verification result for a steady thermal manufactured solution comparing lumped and consistent mass matrix approaches for the projected nodal gradient on a quadratic tquad mesh. In the lumped approach, a simple explicit algorithm is processed while for the consistent approach, a simple mass matrix inversion equation must be solved. The lumped approach is first order while the consistent approach retains the expected second order as the projected nodal gradient is expected to be order $P$. Both Dirichlet and periodic domains display the same order of convergence.
 
 \begin{figure}
 \centerline{\includegraphics[width=0.6\textwidth]{figures/ho_heatCondMMM_dtdx.pdf}}
-\caption{Error norms as a function of mesh size for a CMM and LMM projected nodal gradient.}
+\caption{Error norms as a function of mesh size for a CMM and LMM projected nodal gradient on a quadratic tquad mesh.}
 \label{fig:pngTempMMS}
 \end{figure}
 
 \subsection{Momentum and Pressure}
-The steady taylor vortex exact solution was run on a tquad mesh. Figure~\ref{fig:hoSTVMMS} demonstrates 
-the order of accuracy for projected nodal gradients (pressure) and the velocity field (x-component). 
-Second order accuracy for the projected nodal gradient (pressure) and third order for the velocity field
-is realized when the consistent mass matrix approach is used for the projected nodal pressure gradient. 
-Note that this term is used in the pressure stabilization approach. However, order of convergence for 
-the projected nodal pressure gradient and velocity field is compromised when the lumped mass matrix approach
-is used for the pressure stabilization term. Note that both approaches use the fully integrated pressure
-gradient term in the momentum equation (i.e., $\int p n_i dS$). Therefore, the reduced order of integration
-for the projected nodal pressure gradient has consequence on the velocity field order of convergence.
+The steady taylor vortex exact solution was run on a quadratic tquad mesh. Figure~\ref{fig:hoSTVMMS} demonstrates the order of accuracy for projected nodal gradients (pressure) and the velocity field (x-component). Second order accuracy for the projected nodal gradient (pressure) and third order for the velocity field is realized when the consistent mass matrix approach is used for the projected nodal pressure gradient. Note that this term is used in the pressure stabilization approach. However, order of convergence for the projected nodal pressure gradient and velocity field is compromised when the lumped mass matrix approach is used for the pressure stabilization term. Note that both approaches use the fully integrated pressure gradient term in the momentum equation (i.e., $\int p n_i dS$). Therefore, the reduced order of integration for the projected nodal pressure gradient has consequence on the velocity field order of convergence.
  
 Again, dirichlet (inflow) and periodic domains display the same order of convergence.
 
@@ -128,7 +113,7 @@ is manufactured as follows:
   h &=& +h_o cos(a_h \pi x) cos(a_h \pi y ) cos(a_h \pi z)  \nonumber \\
 \label{3dNonIso}
 \end{eqnarray}
-
+%
 The equation of state is simply the ideal gas law, 
 \begin{equation}
   \rho = \frac{P^{ref} M}{R T}
@@ -142,7 +127,7 @@ constants $a, a_h, M, R, C_p, P^{ref}, T_{ref}, Pr, \mu$ equal to
 At reference conditions, the density is unity. The effects of buoyancy are also provided 
 by an arbitrary gravity vector of magnitude of approximately ten, $g_i = (-5, 6, 7)^T$. On this domain, 
 the enthalpy ranges from zero to unity. Given the reference values, the temperature 
-field ranges from 300 to 400K which is designed to mimic a current LES non-isothermal 
+field ranges from 300K to 400K which is designed to mimic a current LES non-isothermal 
 validation suite.
 
 Edge- and element-based discretization (P=1) demonstrate second order convergence
@@ -165,11 +150,11 @@ is manufactured as follows:
   z &=& +z_o cos(a_z \pi x) cos(a_z \pi y ) cos(a_z \pi z)  \nonumber \\
 \label{3dNonIso}
 \end{eqnarray}
-
+%
 The equation of state is simply the standard inverse mixture fraction 
 property expression for density, 
 \begin{equation}
-  \rho = \frac{1} {\frac{z}{rho^p} + \frac{1-z}{rho^s} }
+  \rho = \frac{1} {\frac{z}{rho^P} + \frac{1-z}{rho^S} }
 \label{idealGasEOS}
 \end{equation}
 
