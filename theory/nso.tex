@@ -87,6 +87,30 @@ and the projected nodal gradient interpolated to the Gauss-point, is also suppor
 \label{nsoFVForm4th}
 \end{equation}
 
+\subsection{NSO Based on Kinetic Energy Residual}
+An alternative formulation explored is to share the general kernal form shown in Equation~\ref{nsoFVForm4th},
+however, compute $\nu$ based on a fine-scale kinetic energy residual. In this formulation, the fine-scale
+kinetic energy residual is obtained from the fine-scale momentum residual dotted with velocity. As with the 
+continuity stabilization approach, the fine-scale momentum residual is provided by Equation~\ref{fineScaleMomentum}.
+Therefore, the fine-scale turbulent kinetic energy is written as,
+\begin{equation}
+ \mathbf{R}_{ke} = \frac{u_j(\frac{\partial p} {\partial x_j} - G_j p )}{2},
+\label{fineScaleKe}
+\end{equation}
+while the denominator for $\nu$ now includes the gradient in ke,
+\begin{equation}
+  \nu = \sqrt{ \frac{\mathbf{R}_{ke} \mathbf{R}_{ke}} {\frac {\partial ke}{\partial x_i} g^{ij} \frac{\partial ke}{\partial x_j}} }.
+\label{nuKe}
+\end{equation}
+The kinetic energy is simply given by,
+\begin{equation}
+  ke = \frac{u_k u_k}{2}
+\label{keForm}
+\end{equation}
+
+The kinetic energy form of $\nu$ is used for all equation sets with transformation by usage of a 
+turbulent Schmidt/Prandtl number.
+
 \subsection{Local or Projected NSO Diffusive Flux Coefficient}
 While the NSO kernel is certainly evaluated at the subcontrol surfaces, the evaluation of $\nu$ can be 
 computed by a multitude of approaches. For example, the artificial diffusive flux coefficient 

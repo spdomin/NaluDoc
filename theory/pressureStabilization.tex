@@ -7,7 +7,15 @@ with advection and diffusional parameters. An alternative to the approaximate pr
 concept is to view the method as a variational multiscale (VMS) method wherebye the momentum residual
 augments the continuity equation. This allows for a diagonal entry for the pressure degree of freedom.
 
-The continuity equation solved, using the VMS-based projected momentum residual, is
+Here, the fine-scale momentum residual is written in terms of a projected momentum residual 
+evaluated at the Gauss point,
+\begin{equation}
+  \mathbf{R}(u_i) = (\frac{\partial p} {\partial x_j} - G_j p ).
+\label{fineScaleMomentum}
+\end{equation}
+The above equation is derived simply by writing a fine-scale momentum equation at the Gauss-points 
+and using the nodal projected residual to reconstruct the individual terms.
+Therefore, the continuity equation solved, using the VMS-based projected momentum residual, is
 
 \begin{equation}
 \int \frac{\partial \bar{\rho}} {\partial t}\, dV
