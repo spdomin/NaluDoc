@@ -62,13 +62,13 @@ like to extract all of the nodes connected to the element. Likewise, this repres
 for faces and edges. Such examples are those in which downward relationships are required. 
 However, one might also have a node and want to extract all of the connected elements to this 
 node (consider some sort of patch recovery algorithm). STK provides the ability to extract 
-such connectivities. In general, full downward and upward connectivites are created.
+such connectivities. In general, full downward and upward connectivities are created.
 
 For example, consider an example in which one has a pointer to an element and wants to 
 extract the nodes of this element. At this point, the developer has not been exposed to 
 abstractions such as buckets, selectors, etc. As such, this is a very high level overview
 with more details to come in subsequent sections. Therefore, the scope below is to assume that
-from an element-k of a ``bucket'', b[k] (which is a collection of homegeneous RANK-ed entities) 
+from an element-k of a ``bucket'', b[k] (which is a collection of homogeneous RANK-ed entities) 
 we will extract the nodes of this element using the STK bulk data.
 
 \begin{lstlisting}
@@ -87,7 +87,8 @@ for ( int ni = 0; ni < num_nodes; ++ni ) {
   // set connected nodes
   connected_nodes[ni] = node;
   
-  // gather some data, e.g., density at state Np1, into a local workset pointer
+  // gather some data, e.g., density at state Np1, 
+  // into a local workset pointer to a std::vector
   p_density[ni] = *stk::mesh::field_data(densityNp1, node );
 }
 
@@ -103,7 +104,7 @@ The following example simply extracts a part for each vector of names that lives
 the vector $targetNames$ and provides this part to all of the underlying equations
 that have been created for purposes of nodal field registration. Parts of the mesh
 that are not included within the $targetNames$ vector would not be included in the 
-field registration and, as such, if this mising part was used to extract the data, an 
+field registration and, as such, if this missing part was used to extract the data, an 
 error would occur.
 
 \begin{lstlisting}
@@ -118,17 +119,17 @@ for ( size_t itarget = 0; itarget < targetNames.size(); ++itarget ) {
   else {
     EquationSystemVector::iterator ii;
     for( ii=equationSystemVector_.begin(); ii!=equationSystemVector_.end(); ++ii )
-    (*ii)->register_nodal_fields(targetPart);
+      (*ii)->register_nodal_fields(targetPart);
   }
 }
 
 \end{lstlisting}
 
 \subsubsection{Selectors}
-In order to arrive at the percise parts of the mesh and entities on which one desires
+In order to arrive at the precise parts of the mesh and entities on which one desires
 to operate, one needs to ``select'' what is useful. The STK selector infrastructure provides this.
 
-In the following example, it is desired to obtain a selector that containst all of the parts of 
+In the following example, it is desired to obtain a selector that contains all of the parts of 
 interest to a physics algorithm that are locally owned and active.
 
 \begin{lstlisting}
@@ -143,7 +144,7 @@ stk::mesh::Selector s_locally_owned_union = metaData_.locally_owned_part()
 \subsubsection{Buckets}
 Once a selector is defined (as above) an abstraction to provide access to the type of 
 data can be defined. In STK, the mechanism to iterate entities on the mesh is through the 
-bucket interface. A bucket is a homegenous collection of $stk::mesh::Entity$.
+$stk::mesh::bucket$ interface. A bucket is a homogeneous collection of $stk::mesh::Entity$.
 
 In the below example, the selector is used to define the bucket of entities that are provided
 to the developer.
@@ -368,7 +369,7 @@ for ( stk::mesh::BucketVector::const_iterator ib = edge_buckets.begin();
 \subsection{High Level Nalu Abstractions}
 
 \subsubsection{Realm}
-A realm holds a particlular physics set, e.g., low-Mach fluids. Realms are coupled
+A realm holds a particular physics set, e.g., low-Mach fluids. Realms are coupled
 loosely through a transfer operation. For example, one might have a turbulent 
 fluids realm, a thermal heat conduction realm and a PMR realm. The realm also 
 holds a BulkData and MetaData since a realm requires fields and parts to solve
@@ -382,11 +383,10 @@ plugged into the set of all equation systems.
 
 In general, the creation of each equation system is of arbitrary order, however, in some cases
 fields required for MixtureFraction, e.g., $mass_flow_rate$ might have only been registered
-on the low-Mach equaiton system. As such, if MixtureFraction is created before LowMachEOS,
+on the low-Mach equation system. As such, if MixtureFraction is created before LowMachEOS,
 an error might be noted. This can be easily resolved by cleaning the code base such that
 each equation system is ``autonomous''.
 
-Each equation system has a set of virtual methods expected to be implemented. These include, however,
-are not limited to registration of nodal fields, edge fields, boundary conditions of fixed
+Each equation system has a set of virtual methods expected to be implemented. These include, however, are not limited to registration of nodal fields, edge fields, boundary conditions of fixed
 type, e.g., wall, inflow, symmetry, etc.
 
