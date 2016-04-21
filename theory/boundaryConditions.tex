@@ -6,13 +6,13 @@ mass flow rate based on the user specified values for velocity,
 \begin{equation}
   \dot{m}_c = \rho^{spec} u^{spec}_j A_j.
 \end{equation}
-As this is a vertex-based code, at inflow and dirichlet wall boundary locations,
+As this is a vertex-based code, at inflow and Dirichlet wall boundary locations,
 the continuity equation uses the specified velocity within the inflow boundary condition
 block.
 
 \subsubsection{Momentum, Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$}
-These degree-of-freemoms (dofs) each use a dirichlet value with the specified user value.
-For all dirichlet values, the row is zeroed with a unity placed
+These degree-of-freedoms (dofs) each use a Dirichlet value with the specified user value.
+For all Dirichlet values, the row is zeroed with a unity placed
 on the diagonal. The residual is zeroed and set to the difference
 between the current value and user specified value.
 
@@ -23,7 +23,7 @@ Continuity uses a no-op.
 
 \subsubsection{Momentum}
 When resolving the boundary layer, Momentum again uses a no-slip 
-dirichlet condition., e.g., $u_i = 0$. 
+Dirichlet condition., e.g., $u_i = 0$. 
 
 In the case of a wall model, a classic wall function is applied.
 The wall shear stress enters the discretization of the momentum equations 
@@ -55,13 +55,13 @@ related to the turbulent kinetic energy by,
 \end{equation}
 %
 by assuming that the production and dissipation of turbulence is in local 
-equalibrium.  The wall friction velocity is also computed given the density and wall shear stress,
+equilibrium.  The wall friction velocity is also computed given the density and wall shear stress,
 \begin{equation} 
         u_\tau = (\frac{\tau_w} {\rho})^{0.5}.
 \end{equation}
 
 
-The normalized perpendicular distace from the point in question to the wall, $y^+$, is defined as
+The normalized perpendicular distance from the point in question to the wall, $y^+$, is defined as
 the following:
 %
 \begin{equation} 
@@ -179,13 +179,13 @@ If the temperature is specified within the wall boundary condition block, a Diri
 is always specified. Wall functions for enthalpy transport have not yet been implemented. 
 
 The simulation tool supports multi-physics coupling via conjugate heat transfer and radiative heat transfer.
-Coupling parameters required for the thermal boundary condiciton are post processed by the fluids or PMR Realm.
-For congugate and radiative couopling, the thermal solve provides the surface temperature. From the surface temperature, 
+Coupling parameters required for the thermal boundary condition are post processed by the fluids or PMR Realm.
+For conjugate and radiative coupling, the thermal solve provides the surface temperature. From the surface temperature, 
 a wall enthalpy is computed and used.
 
 \subsubsection{Thermal Heat Conduction}
 If a temperature is specified in the wall block, and the surface is not an interface condition, then a Dirichlet
-approach is used. If congugate heat transfer is included, then
+approach is used. If conjugate heat transfer is included, then
 the boundary condition applied is as follows,
 
 \begin{equation}
@@ -211,7 +211,7 @@ If a value is specified for each quantity within the wall boundary condition blo
 is applied. If no values are specified, a zero flux condition is applied.
 
 \subsection{Turbulent Kinetic Energy, $k_{sgs}$ LES model}
-When the boundary layer is assumed to be resolved, the natural boundary condition is a dirichelt value of zero, 
+When the boundary layer is assumed to be resolved, the natural boundary condition is a Dirichlet value of zero, 
 $k_{sgs} = 0$. 
 
 When the wall model is used, a standard wall function approach is used with the assumption of equal production and
@@ -344,7 +344,7 @@ for each boundary contribution is based on the difference between the interior i
 point and the user-specified pressure which takes on the boundary value. The interior integration 
 point is determined by linear interpolation. For CVFEM, full elemental averaging is used while in EBVC discretization,
 the midpoint value between the nearest node and opposing node to the boundary integration point is used. In both
-discretization appoaches, non-orthogonal corrections are required. This procedure has been very important for 
+discretization approaches, non-orthogonal corrections are required. This procedure has been very important for 
 stability for CVFEM tet-based meshes where a natural non-orthogonality exists between the boundary and
 interior integration point.
 
@@ -380,7 +380,7 @@ For advection, If the flow is leaving the domain, we simply advect the nearest n
 to the boundary integration point. If the flow is coming into the domain,
 we simply confine the flow to be normal to the open boundary integration 
 point area vector. The value entrained can be the nearest node
-or an upstream velocioty value defined by the edge midpoint value. 
+or an upstream velocity value defined by the edge midpoint value. 
 
 \subsubsection{Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$ }
 Open boundary conditions assume a zero normal gradient. When flow is entering the domain, the far-field
@@ -411,7 +411,7 @@ master/slave surface node pairs. The node pairs are obtained from a parallel sea
 to be unique. The node pairs are used to map the slave global id to that of the master. This allows the linear
 system to include matrix rows for only a subset of the overall set of nodes. Moreover, a periodic 
 assembly for assembled quantities is managed via: $m+=s$ and $s=m$, where $m$ and $s$ are master/slave nodes, 
-respectively. For each parallel assembled quantity, e.g., dual volume, turbuelnce quantities, etc., this procedure
+respectively. For each parallel assembled quantity, e.g., dual volume, turbulence quantities, etc., this procedure
 is used. Periodic boxes and periodic couette and channel flow have been simulated in this code base. Tow forms of
 parallel searches exist and are supported (one through the Boost TPL and another through the STK Search module).
 
@@ -425,7 +425,7 @@ into the opposing block. For three dimensional meshes, the quad face is extruded
 Conceptually, the algorithm works as follows: First, the dual mesh is defined by identifying
 the ordinal of the exposed surface from its owning element. Mappings between each ordinal and the
 extruded element are made to determine how the extruded element is used to close the halo edge area vector,
-edge area vector already defined on the exposed side's set of edges and the dualvolume at the exposed
+edge area vector already defined on the exposed side's set of edges and the dual volume at the exposed
 side nodes.
 
 In Figure~\ref{quad-halo}, consider that the side that is comprised by node 2 and node 3 represents 
@@ -433,17 +433,17 @@ the exposed surface in question. This exposed surface, as defined by the Exoduss
 Conceptually, the extruded element is obtained by orientating ordinal one of this element to lie on top of the exposed 
 ordinal in question. Data structures are defined that map the exposed set of nodes to the extruded 
 nearest node and extruded opposing nodes. Moreover, the mapping of subcontrol area vectors within 
-the extruced element are provided.  
+the extruded element are provided.  
 
 In this simple quad example, it is noted that the mappings for all
 ordinals for the set of boundary element ordinals is the same. Specifically, the mapping between 
 nearest node 2 and 3 for face ordinal 2 for the matching face nodes of the extruded element are 2 and 1. Moreover, the mapping 
-between nearset nodel 2 and 3 for face ordinal 2 for the matching opposing face nodes of the extruded
-element are 3 and 4. These node mappings, along with the extruded distance allows defintion of the nodal coordinates
+between nearest nodel 2 and 3 for face ordinal 2 for the matching opposing face nodes of the extruded
+element are 3 and 4. These node mappings, along with the extruded distance allows definition of the nodal coordinates
 of the extruded element. The halo edge area vector for face nodes 2 and 3 on ordinal 2 are subcontrol surface 2 and 4 
 while the edge on the exposed face maps to subcontrol surface 1 of the extruded element. Finally, the
-alignment of the subcontrl surface area vector and ordinal edge set is required. In the case of ordinal 2, as is the
-case for all ordinals, the natural edge defintion (poist from node 2 to node 3) is opposite of the subcontrol
+alignment of the subcontrol surface area vector and ordinal edge set is required. In the case of ordinal 2, as is the
+case for all ordinals, the natural edge definition (points from node 2 to node 3) is opposite of the subcontrol
 surface area vector definition (the dual area vector at the sub control surface always points from local node low to
 local node high, e.g, node 1->2.
 
@@ -459,7 +459,7 @@ In this case, each three dimensional quad face on the exposed contact surface is
 into a hex element. For the hex case, the common face ordinal 1 is matched with each of the possible
 six exposed surfaces on the exposed face. Again, mappings are defined that allow for the 
 assembly of dual nodal volume, halo edge area vector, augmentation of the exposed side edge
-subcontrol surfaces and edge alignment wrt subcontrol surface area vetcors. For the hex case, the mappings are
+sub-control surfaces and edge alignment wrt sub-control surface area vectors. For the hex case, the mappings are
 not the same for all exposed surfaces.
 
 Finally, the procedure to define the extrusion direction is based on a nodal surface normal direction.
@@ -468,13 +468,13 @@ This quantity is defined by looping over all exposed surface faces and assemblin
 After the dual mesh is defined and associated area vector and dual volumes are assembled, the projected
 node for the pseudo edge is matched to an owning element in the opposing block. The search is performed using a
 parallel search that allows for the intersection of a sphere (the point that is projected) and the set of bounding boxes
-that is determined by all possible opposing blcok elements. Once the owning element for each projected point
+that is determined by all possible opposing block elements. Once the owning element for each projected point
 is determined, the appropriate flux contributions for each PDE is constructed. The halo point state is determined by linear
 interpolation within the owning element given the local isoparametric coordinates determined in the fine search. Here, the 
-fine search is the process whereby the set of candidate bounding boes for each extruded point are tested to see which
-is the best candiate. This process provides the final isoparametric coordinate set for each of the extruded exposed surface
+fine search is the process whereby the set of candidate bounding boxes for each extruded point are tested to see which
+is the best candidate. This process provides the final isoparametric coordinate set for each of the extruded exposed surface
 face nodes. Finally, matrix contributions are fully provided for the face nodes. This procedure finds that the row for the
-exposed node is augmeneted by the columns of the nodes on the owing opposing element.
+exposed node is augmented by the columns of the nodes on the owing opposing element.
 
 For cases in which rotation of one block defines a sliding mesh interface, the above procedure is replicated, e.g., projection,
 dual mesh definition, search and matrix graph initialization.
@@ -487,6 +487,58 @@ dual mesh definition, search and matrix graph initialization.
 
 \subsection{Non-conformal Boundary Condition}
 A surface-based approach based on a DG method has been discussed in the 2010 CTR summer proceedings by Domino, ~\cite{Domino:2010}. 
-A limited form (heat conduction) currently resides in the code base with currently planned extension to all other supported equations. 
-The current implementation supports both CVFEM and EBVC approaches.
+Both the edge- and element-based formulation currently exists in the code base using the CVFEM and EBVC approaches. A quick review is as follows: an interior penalty approach is constructed at each integration point at the exposed surface set. The numerical flux for a general scalar $\phi$ is constructed at the current integration point which is based on the current ($A$) and opposing ($B$) elemental contributions,
+
+\begin{equation} 
+        \int \hat Q^A dS = \int [\frac{(q_j^A n_j^A + q_j^B n_j^B)}{2}
+				+ \lambda^A ( \phi^A - \phi^B) ]dS^A
+        				+ \dot{m}^A \frac{(\phi^A + \phi^B)}{2},
+\label{numericalFluxA}
+\end{equation}
+where $q_j^A$ and $q_j^B$ are the diffusive and convective fluxes computed using the current and opposing elements. The penalty coefficient $\lambda$ contains both advective and diffusive contributions averaged over the two elements. Note that the lack of averaging the mass flow rate, 
+$\dot{m}^A$ is somewhat arbitrary.
+
+Since this algorithm is a dual pass approach, a numerical flux can be written for the integration point on block $B$,
+
+\begin{equation} 
+        \int \hat Q^B dS = \int [\frac{(q_j^B n_j^B + q_j^A n_j^A)}{2} 
+				+ \lambda^B ( \phi^B - \phi^A) ]dS^B
+				+ \dot{m}^B \frac{(\phi^B + \phi^A)}{2}.
+\label{numericalFluxB}
+\end{equation}
+Note that in each case, normals are outward facing.
+
+A parallel search is conducted to project the current integration point location to the opposing element. The search, therefore, provides the isoparametric coordinates of the opposing element. Elemental shape functions and shape function derivatives are used to construct the numerical flux for both the edge- and element-based scheme. The location of the Gauss points on the current element are either the Gauss Labatto or Gauss Legendre locations. For each equation (momentum, continuity, enthalpy, etc.) the numerical flux is computed at each exposed non conformal surface.
+
+The value of the penalty parameter, $\lambda$ contains advection and diffusion contributions. The current formulation defines this quantity as follows (here shown for current side $A$):
+
+\begin{equation} 
+        \lambda^A = \frac{(\Gamma^A / L^A + \Gamma^B / L^B )}{2} + |\dot{m}^A|,
+\label{lamdbaA}
+\end{equation}
+where $\Gamma^k$ is the diffusive flux coefficient evaluated at current and opposing element location, respectively, and $L^k$ is an elemental length scale normal to the surface (again for current and opposing locations, $A$ and $B$). Again, the form of the penalty term is somewhat arbitrary in that the advection mass flow rate could have been upwinded or blended.
+
+As noted, for most equations other than continuity and heat condition, the numerical flux includes advection and diffusion contributions. The diffusive contribution is easily provided using elemental shape function derivatives at the current and opposing surface. 
+
+Above, special care is taken for the value of the mass flow rate at the non conformal interface. Also,
+note that the above written form does not upwind the advective flux, although the code allows for an upwinded approach. In general, the advective term contains contributions from both elements identified at the interface, specifically,
+
+\begin{equation} 
+        \dot {m}^A = \int [\frac{(\rho u_j^A + \tau G_j^A p -\tau \frac{\partial p^A}{\partial x_j}) 
+        				       + (\rho u_j^B+ \tau G_j^B p -\tau \frac{\partial p^A}{\partial x_j})}{2}
+				       + \lambda^A ( p^A - p^B)\ dS^A.
+\label{mdotA}
+\end{equation}
+The penalty coefficient for the mass flow rate at the non conformal boundary points is again a function of the blended inverse length scale at the current and opposing element surface location. The form of the mass flow rate above provides the continuity contribution.
+
+As a final note, the full connectivity for element integration and opposing elements is within the linear system. As such, for sliding mesh configurations, the linear system connectivity graph changes each time step.
+
+
+
+
+
+
+
+
+
 
