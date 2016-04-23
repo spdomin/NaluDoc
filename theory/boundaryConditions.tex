@@ -416,9 +416,9 @@ is used. Periodic boxes and periodic couette and channel flow have been simulate
 parallel searches exist and are supported (one through the Boost TPL and another through the STK Search module).
 
 \subsection{Contact Boundary Condition}
-Parallel sliding mesh algorithm based on extension of Blades, ~\cite{Blades:2004}, to the low Mach application space. This capability is 
-available in 2D and 3D. It has been designed for use in the EBVC approach, although CVFEM can also be used. 
-In this formulation, the exposed  surface is extruded into the opposing block's mesh.
+Parallel sliding mesh algorithm based on extension of Blades,~\cite{Blades:2004}, to the low Mach application 
+space. This capability is available in 2D and 3D. It has been designed for use in the EBVC approach, although 
+CVFEM can also be used. In this formulation, the exposed  surface is extruded into the opposing block's mesh.
 For two dimensional meshes, the edge face (from either a tri or quad mesh) is extruded as a quad mesh
 into the opposing block. For three dimensional meshes, the quad face is extruded as a hex element.
 
@@ -486,8 +486,28 @@ dual mesh definition, search and matrix graph initialization.
 \end{figure}
 
 \subsection{Non-conformal Boundary Condition}
-A surface-based approach based on a DG method has been discussed in the 2010 CTR summer proceedings by Domino, ~\cite{Domino:2010}. 
-Both the edge- and element-based formulation currently exists in the code base using the CVFEM and EBVC approaches. A quick review is as follows: an interior penalty approach is constructed at each integration point at the exposed surface set. The numerical flux for a general scalar $\phi$ is constructed at the current integration point which is based on the current ($A$) and opposing ($B$) elemental contributions,
+A surface-based approach based on a DG method has been discussed in the 2010 CTR summer 
+proceedings by Domino,~\cite{Domino:2010}. Both the edge- and element-based formulation 
+currently exists in the code base using the CVFEM and EBVC approaches. 
+
+Consider two domains, $A$ and $B$, which have a common interface, $\Gamma_{AB}$,
+and a set of interfaces not in common, $\Gamma \backslash \Gamma_{AB}$
+(see Figure~\ref{domainAB}), and assume that the solution of the 
+time-dependent advection/diffusion equation is to be solved in both domains. 
+Each domain has a set of outwardly pointing normals. In this cartoon, the interface 
+is well resolved, although in practice this may not be the case. 
+
+
+\begin{figure} 
+  \centerline{\includegraphics[height=1.5in]{images/twoBlockDiag.pdf}} 
+ \caption{Two-block example with one common surface, $\Gamma_{AB}$.} 
+ \label{domainAB} 
+\end{figure}    
+
+An interior penalty approach is constructed at each integration point at the 
+exposed surface set. The numerical flux for a general scalar $\phi$ is constructed at the 
+current integration point which is based on the current ($A$) and opposing ($B$) elemental 
+contributions,
 
 \begin{equation} 
         \int \hat Q^A dS = \int [\frac{(q_j^A n_j^A + q_j^B n_j^B)}{2}
@@ -495,7 +515,9 @@ Both the edge- and element-based formulation currently exists in the code base u
         				+ \dot{m}^A \frac{(\phi^A + \phi^B)}{2},
 \label{numericalFluxA}
 \end{equation}
-where $q_j^A$ and $q_j^B$ are the diffusive and convective fluxes computed using the current and opposing elements. The penalty coefficient $\lambda$ contains both advective and diffusive contributions averaged over the two elements. Note that the lack of averaging the mass flow rate, 
+where $q_j^A$ and $q_j^B$ are the diffusive and convective fluxes computed using the current 
+and opposing elements. The penalty coefficient $\lambda$ contains both advective and diffusive 
+contributions averaged over the two elements. Note that the lack of averaging the mass flow rate, 
 $\dot{m}^A$ is somewhat arbitrary.
 
 Since this algorithm is a dual pass approach, a numerical flux can be written for the integration point on block $B$,
@@ -506,22 +528,52 @@ Since this algorithm is a dual pass approach, a numerical flux can be written fo
 				+ \dot{m}^B \frac{(\phi^B + \phi^A)}{2}.
 \label{numericalFluxB}
 \end{equation}
-Note that in each case, normals are outward facing.
+Note that in each case, normals are outward facing. 
 
-A parallel search is conducted to project the current integration point location to the opposing element. The search, therefore, provides the isoparametric coordinates of the opposing element. Elemental shape functions and shape function derivatives are used to construct the numerical flux for both the edge- and element-based scheme. The location of the Gauss points on the current element are either the Gauss Labatto or Gauss Legendre locations. For each equation (momentum, continuity, enthalpy, etc.) the numerical flux is computed at each exposed non conformal surface.
+Average fluxes are computed based on the current and opposing integration point locations. The 
+appropriate DG terms are assembled as boundary conditions first with block $A$ integration 
+points as $current$ (integrations points for block B are $opposing$) and then with block $B$ 
+integration points as $current$ (surfaces for block A are, therefore, $opposing$). Figure~\ref{nonConformal} 
+graphically demonstrates the procedure in which integration point values of the flux and penalty 
+term are computed on the block $A$ surface and at the projected location of block $B$. 
 
-The value of the penalty parameter, $\lambda$ contains advection and diffusion contributions. The current formulation defines this quantity as follows (here shown for current side $A$):
+\begin{figure}
+\centering
+  {\includegraphics[height=1.5in]{images/contactSearchAndEval.pdf}}
+  \vspace{0.25in}
+  \caption{Description of the numerical flux calculation for the DG algorithm. The 
+    value of fluxes and penalty values on the current block ($A$) and the opposing block ($B$) are used 
+    for the calculation of numerical fluxes. $\tilde \varphi$ represents the projected value.}
+  \label{nonConformal}
+\end{figure}
+
+A parallel search is conducted to project the current integration point location to the opposing element exposed face. 
+The search, therefore, provides the isoparametric coordinates on the opposing element. Elemental shape functions 
+and shape function derivatives are used to construct the numerical flux for both the edge- and element-based 
+scheme. The location of the Gauss points on the current element are either the Gauss Labatto or Gauss Legendre 
+locations (input file specification). For each equation (momentum, continuity, enthalpy, etc.) the numerical 
+flux is computed at each exposed non-conformal surface.
+
+The value of the penalty parameter, $\lambda$ contains advection and diffusion contributions. The current 
+formulation defines this quantity as follows (here shown for current side $A$):
 
 \begin{equation} 
         \lambda^A = \frac{(\Gamma^A / L^A + \Gamma^B / L^B )}{2} + |\dot{m}^A|,
 \label{lamdbaA}
 \end{equation}
-where $\Gamma^k$ is the diffusive flux coefficient evaluated at current and opposing element location, respectively, and $L^k$ is an elemental length scale normal to the surface (again for current and opposing locations, $A$ and $B$). Again, the form of the penalty term is somewhat arbitrary in that the advection mass flow rate could have been upwinded or blended.
+where $\Gamma^k$ is the diffusive flux coefficient evaluated at current and opposing element location, respectively, 
+and $L^k$ is an elemental length scale normal to the surface (again for current and opposing locations, $A$ and $B$). 
+Again, the form of the penalty term is somewhat arbitrary in that the advection mass flow rate could have been upwinded 
+or blended.
 
-As noted, for most equations other than continuity and heat condition, the numerical flux includes advection and diffusion contributions. The diffusive contribution is easily provided using elemental shape function derivatives at the current and opposing surface. 
+As noted, for most equations other than continuity and heat condition, the numerical flux includes advection and 
+diffusion contributions. The diffusive contribution is easily provided using elemental shape function derivatives 
+at the current and opposing surface. 
 
-Above, special care is taken for the value of the mass flow rate at the non conformal interface. Also,
-note that the above written form does not upwind the advective flux, although the code allows for an upwinded approach. In general, the advective term contains contributions from both elements identified at the interface, specifically,
+Above, special care is taken for the value of the mass flow rate at the non-conformal interface. Also,
+note that the above written form does not upwind the advective flux, although the code allows for an upwinded 
+approach. In general, the advective term contains contributions from both elements identified at the interface, 
+specifically,
 
 \begin{equation} 
         \dot {m}^A = \int [\frac{(\rho u_j^A + \tau G_j^A p -\tau \frac{\partial p^A}{\partial x_j}) 
@@ -529,16 +581,9 @@ note that the above written form does not upwind the advective flux, although th
 				       + \lambda^A ( p^A - p^B)\ dS^A.
 \label{mdotA}
 \end{equation}
-The penalty coefficient for the mass flow rate at the non conformal boundary points is again a function of the blended inverse length scale at the current and opposing element surface location. The form of the mass flow rate above provides the continuity contribution.
+The penalty coefficient for the mass flow rate at the non-conformal boundary points is again a function of the 
+blended inverse length scale at the current and opposing element surface location. The form of the mass flow 
+rate above provides the continuity contribution.
 
-As a final note, the full connectivity for element integration and opposing elements is within the linear system. As such, for sliding mesh configurations, the linear system connectivity graph changes each time step.
-
-
-
-
-
-
-
-
-
-
+As a final note, the full connectivity for element integration and opposing elements is within the linear 
+system. As such, for sliding mesh configurations, the linear system connectivity graph changes each time step.
