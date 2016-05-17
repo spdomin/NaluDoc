@@ -588,5 +588,17 @@ blended inverse length scale at the current and opposing element surface locatio
 rate above provides the continuity contribution and the form of the mass flow rate used in the scalar non-conformal
 flux contribution.
 
-As a final note, the full connectivity for element integration and opposing elements is within the linear 
-system. As such, for sliding mesh configurations, the linear system connectivity graph changes each time step.
+The full connectivity for element integration and opposing elements is within the linear 
+system. As such, for sliding mesh configurations, the linear system connectivity graph changes each time step. Recent prototyping of 
+the dG-based and the overset scheme has allowed this method to be used across both disparate low-order 
+topologies (see Figure~\ref{dgMixMatch}).
+
+\begin{figure}[h!tp]
+\centering
+\includegraphics[clip,width=0.4\textwidth]{images/dgHex8Tet4Duct.png}
+\includegraphics[clip,width=0.4\textwidth]{images/dgQuad4Quad9MMS.png}
+\caption{Discontinuous Galerkin non-conformal interface mixed topology (left, hex8/tet4) and a low-order and high-order block interface 
+(P=1 quad4 and P=2 quad9) for a MMS temperature solution (right). In the MMS image, the inset image is a close-up of the nodal 
+Ids near the interface that highlights the quad4 and quad9 interface.}
+\label{dgMixMatch}
+\end{figure}
