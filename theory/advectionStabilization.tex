@@ -11,7 +11,7 @@ where $\phi$ is $u_i$, $Z$, $h$, etc.
 
 The evaluation of $\phi_{ip}$ defines the advection stabilization choice. 
 In general, the advection choice is a cell Peclet blending between higher
-order upwind ($\phi_{upw}$) and a generalized unstabilized central 
+order upwind ($\phi_{upw}$) and a generalized un-stabilized central 
 (Galerkin) operator, $\phi_{gcds}$,
 
 \begin{equation}
@@ -21,7 +21,7 @@ order upwind ($\phi_{upw}$) and a generalized unstabilized central
 %
 
 In the above equation, $\eta$ is a cell Peclet blending. The generalized
-central operator can take on a pure second order or psuedo fourth order form (see below). 
+central operator can take on a pure second order or pseudo fourth order form (see below). 
 For the classic Peclet number functional form (see Equation~\ref{classicPF}) 
 a hybrid upwind factor, $\gamma$, can be used to 
 ensure that no stabilization is added ($\eta = 0$) or that full upwind stabilization is included (as will be shown, 
@@ -52,7 +52,7 @@ The tanh form is as follows,
 Above, the constant $c_{trans}$ represents the transition Peclet number while $c_{width}$ represents the width of 
 the transition. The value of $\lambda$ is simply the shift between of the raw tanh function
 from zero while $\delta$ is the difference between the max Peclet factor (unity) and the minimum value
-prior to normalization. This approach ensures that the function starts at zero and asymtotes to unity. 
+prior to normalization. This approach ensures that the function starts at zero and asymptotes to unity. 
 
 The cell-Peclet number is computed for each sub-face in the element
 from the two adjacent left (L) and right (R) nodes,

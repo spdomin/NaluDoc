@@ -11,7 +11,7 @@ the continuity equation uses the specified velocity within the inflow boundary c
 block.
 
 \subsubsection{Momentum, Mixture Fraction, Enthalpy, Species, $k_{sgs}$, k and $\omega$}
-These degree-of-freedoms (dofs) each use a Dirichlet value with the specified user value.
+These degree-of-freedoms (DOFs) each use a Dirichlet value with the specified user value.
 For all Dirichlet values, the row is zeroed with a unity placed
 on the diagonal. The residual is zeroed and set to the difference
 between the current value and user specified value.
@@ -276,7 +276,7 @@ energy, in the absence of convection, diffusion, or accumulation is given by,
 \end{equation}
 
 This expression for turbulent kinetic energy is evaluated at the boundary faces of the
-exposed wall boundaries and is area-assembled to the nodal value for use in a dirichlet condition.
+exposed wall boundaries and is area-assembled to the nodal value for use in a Dirichlet condition.
 
 \subsubsection{Turbulent Kinetic Energy and Specific Dissipation SST Low Reynolds Number Boundary conditions}
 
@@ -429,7 +429,7 @@ edge area vector already defined on the exposed side's set of edges and the dual
 side nodes.
 
 In Figure~\ref{quad-halo}, consider that the side that is comprised by node 2 and node 3 represents 
-the exposed surface in question. This exposed surface, as defined by the Exoduss II standard, is ordinal number two. 
+the exposed surface in question. This exposed surface, as defined by the Exodus II standard, is ordinal number two. 
 Conceptually, the extruded element is obtained by orientating ordinal one of this element to lie on top of the exposed 
 ordinal in question. Data structures are defined that map the exposed set of nodes to the extruded 
 nearest node and extruded opposing nodes. Moreover, the mapping of subcontrol area vectors within 
