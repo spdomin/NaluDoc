@@ -1,8 +1,8 @@
 This section provides an overview of the currently supported
-equation sets. Equations will be decribed in integral form with
+equation sets. Equations will be described in integral form with
 assumed Favre averaging. However, the laminar counterparts
 are supported in the code base and are obtain in the user file
-by ommitting a turbulence model specification.
+by omitting a turbulence model specification. 
 
 \subsection{Conservation of Mass}
 The continuity equation is always solved in the variable density form.
@@ -31,67 +31,64 @@ turbulent transport are
 \begin{eqnarray}
    \int {{\partial \bar{\rho} \tilde{u}_i} \over {\partial t}} {\rm d}V
   +  \int \bar{\rho} \tilde{u}_i \tilde{u}_j n_j {\rm d}S 
-  +  \int \bar{P} n_i {\rm d}S  &=& 
-   \int \bar{\tau}_{ij} n_j {\rm d}S 
-  + \int \tau_{u_i u_j} n_j {\rm d}S \nonumber \\ 
+   &=& 
+   \int \tilde{\sigma}_{ij} n_j {\rm d}S 
+  - \int \tau^{sgs}_{ij} n_j {\rm d}S \nonumber \\ 
    &+& \int \left(\bar{\rho} - \rho_{\circ} \right) g_i {\rm d}V,
 \label{fav-mom}
 \end{eqnarray}
 %
-where the turbulent stress $\tau_{u_i u_j}$ is defined as
+where the subgrid scale turbulent stress $\tau^{sgs}_{ij}$ is defined as
 %
 \begin{equation}
-\tau_{u_i u_j} \equiv - \bar{\rho} ( \widetilde{u_i u_j} - 
+\tau^{sgs}_{ij} \equiv \bar{\rho} ( \widetilde{u_i u_j} - 
      \tilde{u}_i \tilde{u}_j ).
+\label{sgsStress}
 \end{equation}
 %
+The Cauchy stress is provided by,
+\begin{equation}
+\sigma_{ij}  = 2 \mu \tilde S^*_{ij} - \bar P \delta_{ij}
+\end{equation}
+%
+and the traceless rate-of-strain tensor defined as follows:
+\begin{eqnarray}
+\tilde S^*_{ij}  &=& \tilde S_{ij} - \frac{1}{3} \delta_{ij} \tilde S_{kk} \nonumber \\
+		     &=& \tilde S_{ij} - \frac{1}{3} \frac{\partial \tilde u_k }{\partial x_k}\delta_{ij}.
+\end{eqnarray}
+
 In a low Mach flow, as described in the low Mach theory section, 
-the above pressure, $\bar P$ is the purturbation about the thermodynamic
-pressure, $P^{th}$. In a low speed compressible flow, i.e., flows confinded to a closed
+the above pressure, $\bar P$ is the perturbation about the thermodynamic
+pressure, $P^{th}$. In a low speed compressible flow, i.e., flows confined to a closed
 domain with energy or mass addition in which the continuity equation
-has been modifed to accomodate accoustics, this pressure is interpreted at the
+has been modified to accommodate acoustics, this pressure is interpreted at the
 thermodynamic pressure itself.
 
-For LES, $\tau_{u_i u_j}$ in Equation~\ref{fav-mom} represents the 
-subgrid stress tensor.  The deviatoric part of the subgrid stress
-tensor is defined as
-%
-\begin{eqnarray}
-\tau_{u_i u_j}^D & \equiv & \tau_{u_i u_j} - \frac{1}{3} \tau_{u_k u_k}
-                            \delta_{ij} \nonumber \\
-    & = & \tau_{u_i u_j} + \frac{2}{3} \bar{\rho} q^2 \delta_{ij},
-    \label{deviatoric-stress-les}
-\end{eqnarray}
-%
-where the subgrid turbulent kinetic energy is defined as
-$q^2 \equiv \frac{1}{2} (\widetilde{u_k u_k} - \tilde{u_k} \tilde{u_k} )$.
-The deviatoric part of the subgrid stress tensor is then modeled similar
-to RANS closures as,
+For LES, $\tau^{sags}_{ij}$ that appears in Equation~\ref{fav-mom} and defined in 
+Equation~\ref{sgsStress} represents the subgrid stress tensor that must be closed.  The deviatoric part of the subgrid stress tensor is defined as,
 %
 \begin{equation}
-\tau_{u_i u_j}^D = 2 \mu_t \left( \tilde{S}_{ij} - \frac{1}{3} \tilde{S}_{kk}
-     \delta_{ij} \right).
+\tau^{*sgs}_{ij} = \tau^{sgs}_{ij} - \frac{1}{3} \delta_{ij} \tau^{sgs}_{kk}
 \end{equation}
 %
-Substituting this into Equation~\ref{deviatoric-stress-les} yields the
-modeled form of the full subgrid stress tensor
-%
+where the subgrid turbulent kinetic energy is defined as $\tau^{sgs}_{ij} = 2 \bar \rho k$.
+Note that this is the modeled turbulent kinetic energy that can be closed as, e.g.,
+
 \begin{equation}
-\tau_{u_i u_j} = 2 \mu_t \left( \tilde{S}_{ij} - \frac{1}{3} \tilde{S}_{kk}
-     \delta_{ij} \right) - \frac{2}{3} \bar{\rho} q^2 \delta_{ij}.
-\label{mod-stress-les}
+\tau^{sgs}_{kk} = 2 C_I \bar \rho \Delta^2 | \tilde S | ^2.
 \end{equation}
+%
+Above, $ | \tilde S | = \sqrt {2 \tilde S_{ij} \tilde S_{ij}}$
 
 For low Mach-number flows, a vast majority of the turbulent kinetic energy
-is contained at resolved scales.
-For this reason, the subgrid turbulent kinetic energy $q^2$ will not be
-directly treated and will instead be included in the pressure as an
+is contained at resolved scales. For this reason, the subgrid turbulent kinetic energy is not 
+directly treated and, rather, is included in the pressure as an
 additional normal stress.  The Favre-filtered momentum equations then become
 %
 \begin{eqnarray}
 \lefteqn{ \int {{\partial \bar{\rho} \tilde{u}_i} \over {\partial t}}
      {\rm d}V + \int \bar{\rho} \tilde{u}_i \tilde{u}_j n_j {\rm d}S 
-   + \int \left( \bar{P} + \frac{2}{3} \bar{\rho} q^2 \right) 
+   + \int \left( \bar{P} + \frac{2}{3} \bar{\rho} k \right) 
      n_i {\rm d}S = } \nonumber \\
    && \int 2 (\mu + \mu_t) \left( \tilde{S}_{ij} - \frac{1}{3}
       \tilde{S}_{kk} \delta_{ij} \right) n_j {\rm d}S
@@ -116,8 +113,8 @@ primary stream and is transported in laminar flow by the equation,
 %
 \begin{equation}
 \frac{\partial \rho Z}{\partial t}
-  + \frac{ \partial \rho u_i Z }{ \partial x_i}
-  = \frac{\partial}{\partial x_i} \left( \rho D \frac{\partial Z}{\partial x_i}
+  + \frac{ \partial \rho u_j Z }{ \partial x_j}
+  = \frac{\partial}{\partial x_j} \left( \rho D \frac{\partial Z}{\partial x_j}
     \right),  \label{eqn:lam_Z}
 \end{equation}
 %
@@ -126,26 +123,24 @@ where $D$ is an effective molecular mass diffusivity.
 Applying either temporal Favre filtering for RANS-based treatments or 
 spatial Favre filtering for LES-based treatments yields
 
-
 \begin{equation}
 \int \frac{\partial \bar{\rho} \tilde{Z}}{\partial t} {\rm d}V
   + \int \bar{\rho} \tilde{u}_j \tilde{Z} n_j {\rm d}S
-  = - \int \tau_{Zu_j} n_j {\rm d}S + \int \bar{\rho} D \frac{\partial \tilde{Z}}{\partial x_j} n_j {\rm d}S,  \label{eqn:turb_Z}
+  = -\int \tau^{sgs}_{Z,j} n_j {\rm d}S + \int \bar{\rho} D \frac{\partial \tilde{Z}}{\partial x_j} n_j {\rm d}S,  \label{eqn:turb_Z}
 \end{equation}
 %
 where sub-filter correlations have been neglected in the molecular diffusive
-flux vector and the turbulent diffusive flux vector is defined as
+flux vector and the turbulent surged scale diffusive flux vector is defined as
 %
 \begin{equation}
-\tau_{Z u_j} \equiv \bar{\rho} \left( \widetilde{Z u_j} -
+\tau^{sgs}_{Z,j} \equiv \bar{\rho} \left( \widetilde{Z u_j} -
   \tilde{Z} \tilde{u}_j \right).
 \end{equation}
 %
-This sub-filter correlation is modeled in
-both RANS and LES closures with the gradient transport approximation
+This subgrid scale closure is modeled using the gradient diffusion hypothesis,
 %
 \begin{equation}
-\tau_{Z u_j} \approx - \bar{\rho} D_t \frac{\partial Z}{\partial x_j},
+\tau^{sgs}_{Z,j} = - \bar{\rho} D_t \frac{\partial Z}{\partial x_j},
 \end{equation}
 %
 where $D_t$ is the turbulent mass diffusivity, modeled as $\bar{\rho} D_t =
@@ -158,19 +153,19 @@ equation is
 %
 \begin{equation}
 \frac{\partial \bar{\rho} \tilde{Z}}{\partial t}
-  + \frac{ \partial \bar{\rho} \tilde{u}_i \tilde{Z} }{ \partial x_i}
-  = \frac{\partial}{\partial x_i} 
+  + \frac{ \partial \bar{\rho} \tilde{u}_j \tilde{Z} }{ \partial x_j}
+  = \frac{\partial}{\partial x_j} 
     \left[ \left( \frac{\mu}{\mathrm{Sc}} + \frac{\mu_t}{\mathrm{Sc}_t} \right)
-    \frac{\partial \tilde{Z}}{\partial x_i} \right].
+    \frac{\partial \tilde{Z}}{\partial x_j} \right].
 \end{equation}
 %
 In integral form the mixture fraction transport equation is
 %
 \begin{equation}
 \int \frac{\partial \bar{\rho} \tilde{Z}}{\partial t}\, dV
-  + \int \bar{\rho} \tilde{u}_i \tilde{Z} n_i\, dS
+  + \int \bar{\rho} \tilde{u}_j \tilde{Z} n_j\, dS
   = \int \left( \frac{\mu}{\mathrm{Sc}} + \frac{\mu_t}{\mathrm{Sc}_t} \right)
-    \frac{\partial \tilde{Z}}{\partial x_i} n_i\, dS.
+    \frac{\partial \tilde{Z}}{\partial x_j} n_j\, dS.
 \end{equation}
 
 \subsection{Conservation of Energy}
@@ -182,7 +177,7 @@ turbulent transport is
    \int {{\partial \bar{\rho} \tilde{h}} \over {\partial t}} {\rm d}V
   + \int \bar{\rho} \tilde{h} \tilde{u}_j n_j {\rm d}S 
   &=& - \int \bar{q}_j n_j {\rm d}S
-  - \int \tau_{h u_j} n_j {\rm d}S 
+  -\int \tau^{sgs}_{h,j} n_j {\rm d}S 
   - \int {{\partial \bar{q}_i^r} \over {\partial x_i}} {\rm d}V \nonumber \\
   && + \int \left({{\partial \bar{P}} \over {\partial t}} + \tilde{u}_j {{\partial \bar{P}} \over {\partial x_j}}\right){\rm d}V
   + \int \overline{\tau_{ij} {{\partial u_i} \over {\partial x_j }}} {\rm d}V.
@@ -193,7 +188,7 @@ turbulent transport is
 The above equation is derived by starting with the total internal energy
 equation, subtracting the mechanical energy equation and enforcing the
 variable density continuity equation. Note that the above equation includes
-possible source terms due to thermal radiatitive transport, viscouss dissipation,
+possible source terms due to thermal radiative transport, viscous dissipation,
 and pressure work.
 
 The simple Fickian diffusion velocity approximation, Equation~\ref{diffvel1},
@@ -231,40 +226,24 @@ base on $\kappa = \frac{C_p \mu}{Pr}$. The viscous dissipation term is closed by
       \delta_{ij} \right] \frac{\partial \tilde{u}_i}{\partial x_j}.
 \end{eqnarray}
 %
-The turbulent diffusive flux vector $\tau_{h u_j}$ in Equation~\ref{fav-enth}
+The subgrid scale turbulent diffusive flux vector $\tau^{sgs}_{h }$ in Equation~\ref{fav-enth}
 is defined as
 %
 \begin{equation}
-\tau_{h u_j} \equiv \bar{\rho} \left( \widetilde{h u_j} - 
+\tau^{sgs}_{h,j} \equiv \bar{\rho} \left( \widetilde{h u_j} - 
      \tilde{h} \tilde{u}_j \right).
 \end{equation}
 %
-For RANS simulations, $\tau_{h u_j}$ represents the turbulent energy 
-diffusive flux vector and is simplified to the form 
-$\tau_{h u_j} = \overline{\rho h'' u_j''}$ by substitution of the 
-Favre decomposition of each variable.  It is then modeled by
-%
+As with species transport, the gradient diffusion hypothesis is used to close
+this subgrid scale model,
 \begin{equation}
-\tau_{h u_j} = \overline{\rho h'' u_j''}
-   = - \frac{\mu_t}{\mathrm{Pr}_t} \frac{\partial \tilde{h}}{\partial x_j},
+\tau^{sgs}_{h,j} = - \frac{\mu_t}{\mathrm{Pr}_t} \frac{\partial \tilde{h}}{\partial x_j},
 \end{equation}
 %
 where $\mathrm{Pr}_t$ is the turbulent Prandtl number and $\mu_t$ is 
-the modeled turbulent eddy viscosity from momentum closure.  For LES, 
-$\tau_{h u_j}$ represents
-the subgrid turbulent energy diffusive flux vector, and is modeled in the
-same way as
-%
-\begin{equation}
-\tau_{h u_j} = - \frac{\mu_t}{\mathrm{Pr}_t} \frac{\partial 
-     \tilde{h}}{\partial x_j},
-\end{equation}
-%
-where $\mathrm{Pr}_t$ is the subgrid turbulent Prandtl number and $\mu_t$
-is the modeled subgrid turbulent eddy viscosity from momentum closure.
+the modeled turbulent eddy viscosity from momentum closure.  
 
-The resulting filtered and modeled turbulent energy equation for both RANS
-and LES is given by,
+The resulting filtered and modeled turbulent energy equation is given by,
 %
 \begin{eqnarray}
 \int {{\partial \bar{\rho} \tilde{h}} \over {\partial t}} {\rm d}V
@@ -344,7 +323,7 @@ turbulent transport is
 \begin{equation}
   \int {{\partial \bar{\rho} \tilde{Y}_k} \over {\partial t}} {\rm d}V
   + \int \bar{\rho} \tilde{Y}_k \tilde{u}_j n_j {\rm d}S = 
-  - \int \tau_{Y_k u_j} n_j {\rm d}S
+  - \int \tau^{sgs}_{Y_k,j} n_j {\rm d}S
   - \int \overline{\rho Y_k \hat{u}_{j,k}} n_j {\rm d}S + 
    \int \overline{\dot{\omega}_k} {\rm d}V,
 \label{fav-species}
@@ -362,30 +341,17 @@ value of mass diffusivity for all species,
   \label{diffvel1}
 \end{equation}
 %
-The turbulent diffusive flux vector $\tau_{Y_k u_j}$ is defined as
+The subgrid scale turbulent diffusive flux vector $\tau^{sgs}_{Y_kj}$ is defined as
 %
 \begin{equation}
-\tau_{Y_k u_j} \equiv \bar{\rho} \left( \widetilde{Y_k u_j} - 
+\tau^{sgs}_{Y_k,j} \equiv \bar{\rho} \left( \widetilde{Y_k u_j} - 
      \tilde{Y_k} \tilde{u}_j \right).
 \end{equation}
 %
-For RANS simulations, $\tau_{Y_k u_j}$ represents the turbulent species 
-diffusive flux vector and is simplified to the form 
-$\tau_{Y_k u_j} = \overline{\rho Y_k'' u_j''}$ by substitution of the 
-Favre decomposition of each variable.  It is then modeled as
+The closure for this model takes on its usual gradient diffusion hypothesis, i.e.,
 %
 \begin{equation}
-\tau_{Y_k u_j} = \overline{\rho Y_k'' u_j''}
-    = - \frac{\mu_t}{\mathrm{Sc}_t} \frac{\partial \tilde{Y}_k}{\partial x_j}, 
-\end{equation}
-%
-where $\mathrm{Sc}_t$ is the turbulent Schmidt number for all species
-and $\mu_t$ is the modeled turbulent eddy viscosity from momentum closure.
-For LES, $\tau_{Y_k u_j}$ represents the subgrid turbulent species diffusive 
-flux vector, and is modeled identically as
-%
-\begin{equation}
-\tau_{Y_k u_j} = - \frac{\mu_t}{\mathrm{Sc}_t} \frac{\partial 
+\tau^{sgs}_{Y_k,j} = - \frac{\mu_t}{\mathrm{Sc}_t} \frac{\partial 
      \tilde{Y}_k}{\partial x_j}, 
 \end{equation}
 %
@@ -394,7 +360,7 @@ species and $\mu_t$ is the subgrid modeled turbulent eddy viscosity from
 momentum closure.
 
 The Favre-filtered and modeled turbulent species transport equation
-for both RANS and LES then becomes
+is,
 %
 \begin{equation}
   \int {{\partial \bar{\rho} \tilde{Y}_k} \over {\partial t}} {\rm d}V
@@ -419,7 +385,7 @@ need to be solved since the mass fractions sum to unity and
 \end{equation}
 
 Finally, the reaction rate source term is expected to be added based on an
-operator split approach wherebye the set of ODEs are integrated over the full
+operator split approach whereby the set of ODEs are integrated over the full
 time step. The chemical kinetic source terms can be sub-integrated within
 a time step using a stiff ODE integrator package. 
 

@@ -93,12 +93,10 @@ LES grid filter size $\Delta$ provides a natural length scale.  The
 subgrid eddy viscosity is modeled simply as (Smagorinsky)
 %
 \begin{equation}
-\mu_t = \rho \left(C_s \Delta \right)^2 MAG(\tilde {S}),
+\mu_t = \rho \left(C_s \Delta \right)^2 | \tilde {S} |,
 \label{mut-smag}
 \end{equation}
 %
-where the strain rate tensor magnitude is defined as 
-$MAG(\tilde{S}) \equiv (2 \tilde{S}_{ij} \tilde{S}_{ij})^{{1} \over {2}}$.
 The constant coefficient $C_s$ typically varies between $0.1$ and
 $0.24$ and should be carefully tuned to match the problem being solved
 (Rogallo and Moin,~\cite{Rogallo:1984}).  The default value of $0.17$ is assigned in the code base.
@@ -108,7 +106,9 @@ care should be taken in its application.  It is known to predict subgrid
 turbulent eddy viscosity proportional to the shear rate in the flow,
 independent of the local turbulence intensity.  Non-zero subgrid turbulent
 eddy viscosity is even predicted in completely laminar regions of the
-flow, sometimes even preventing a natural transition to turbulence.
+flow, sometimes even preventing a natural transition to turbulence. The model also
+does not asymptotically replicate near wall behavior without either dampening or a
+dynamic procedure.
 
 \subsection{Wall Adapting Local Eddy-Viscosity, WALE}
 
