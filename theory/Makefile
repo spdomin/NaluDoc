@@ -9,10 +9,10 @@ timeDiscretization.tex topologicalSupport.tex turbulenceModeling.tex
 
 all:
 	rm -rf *.aux
-	/usr/bin/pdflatex naluLowMachTheory 
-	/usr/bin/bibtex naluLowMachTheory 
-	/usr/bin/pdflatex naluLowMachTheory
-	/usr/bin/pdflatex naluLowMachTheory
+	pdflatex naluLowMachTheory 
+	bibtex naluLowMachTheory 
+	pdflatex naluLowMachTheory
+	pdflatex naluLowMachTheory
 
 clean:
 	-rm -f *.aux *.log *.dvi *.bbl *.blg *.toc *.lof *.lot *.out
