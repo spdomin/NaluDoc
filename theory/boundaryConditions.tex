@@ -530,7 +530,9 @@ Since this algorithm is a dual pass approach, a numerical flux can be written fo
 				+ \dot{m}^B \frac{(\phi^B + \phi^A)}{2}.
 \label{numericalFluxB}
 \end{equation}
-Note that in each case, normals are outward facing. 
+Note that in each case, normals are outward facing. For low-order meshes with curved surface, faceting will occur.
+In this case, the outward facing normals may not be (sign)-unity factors of each other. In this case, it
+may be adventageous to define the opposing outward normal as, $n_j^B = -n_j^A$. 
 
 Average fluxes are computed based on the current and opposing integration point locations. The 
 appropriate DG terms are assembled as boundary conditions first with block $A$ integration 
