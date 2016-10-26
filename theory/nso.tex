@@ -94,12 +94,12 @@ kinetic energy residual is obtained from the fine-scale momentum residual dotted
 continuity stabilization approach, the fine-scale momentum residual is provided by Equation~\ref{fineScaleMomentum}.
 Therefore, the fine-scale kinetic energy is written as,
 \begin{equation}
- \mathbf{R}_{ke} = \frac{u_j(\frac{\partial p} {\partial x_j} - G_j p )}{2},
+ \mathbf{R}_{ke} = \frac{u_j(\frac{\partial p} {\partial x_j} - G_j p )}{2 \rho},
 \label{fineScaleKe}
 \end{equation}
 while the denominator for $\nu$ now includes the gradient in ke,
 \begin{equation}
-  \nu = \sqrt{ \frac{\mathbf{R}_{ke} \mathbf{R}_{ke}} {\frac {\partial ke}{\partial x_i} g^{ij} \frac{\partial ke}{\partial x_j}} }.
+  \nu = \rho \sqrt{ \frac{\mathbf{R}_{ke} \mathbf{R}_{ke}} {\frac {\partial ke}{\partial x_i} g^{ij} \frac{\partial ke}{\partial x_j}} }.
 \label{nuKe}
 \end{equation}
 The kinetic energy is simply given by,
